@@ -1,0 +1,26 @@
+
+# Java / Maven
+target/
+*.log
+*.class
+
+# Spring Boot
+*.log
+logs/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Build / temp
+out/
+build/
