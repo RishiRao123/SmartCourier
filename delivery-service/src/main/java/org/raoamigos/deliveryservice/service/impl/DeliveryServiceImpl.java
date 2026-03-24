@@ -10,6 +10,7 @@ import org.raoamigos.deliveryservice.repository.DeliveryRepository;
 import org.raoamigos.deliveryservice.service.DeliveryService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -61,5 +62,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     public Delivery getDeliveryByTrackingNumber(String trackingNumber) {
         return deliveryRepository.findByTrackingNumber(trackingNumber)
                 .orElseThrow(() -> new RuntimeException("Delivery not found with trackingNumber : " + trackingNumber));
+    }
+
+    public List<Delivery> getMyDeliveries(Long customerId) {
+        return deliveryRepository.findByCustomerId(customerId);
     }
 }
