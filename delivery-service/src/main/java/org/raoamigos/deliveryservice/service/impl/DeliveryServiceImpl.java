@@ -1,0 +1,65 @@
+package org.raoamigos.deliveryservice.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.raoamigos.deliveryservice.dto.DeliveryRequestDTO;
+import org.raoamigos.deliveryservice.entity.Address;
+import org.raoamigos.deliveryservice.entity.Delivery;
+import org.raoamigos.deliveryservice.entity.DeliveryStatus;
+import org.raoamigos.deliveryservice.entity.PackageDetails;
+import org.raoamigos.deliveryservice.repository.DeliveryRepository;
+import org.raoamigos.deliveryservice.service.DeliveryService;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class DeliveryServiceImpl implements DeliveryService {
+
+    private final DeliveryRepository deliveryRepository;
+
+    @Override
+    public Delivery createDelivery(DeliveryRequestDTO dto, Long customerId) {
+
+        String trackingNumber = "TRK" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
+        Address senderAddress = Address.builder()
+                .street(dto.getSenderAddress().getStreet())
+                .city(dto.getSenderAddress().getCity())
+                .state(dto.getSenderAddress().getState())
+                .zipCode(dto.getSenderAddress().getZipCode())
+                .build();
+
+        Address receiverAddress = Address.builder()
+                .street(dto.getReceiverAddress().getStreet())
+                .city(dto.getReceiverAddress().getCity())
+                .state(dto.getReceiverAddress().getState())
+                .zipCode(dto.getReceiverAddress().getZipCode())
+                .build();
+
+        PackageDetails packageDetails = PackageDetails.builder()
+                .weight(dto.getPackageDetails().getWeight())
+                .dimensions(dto.getPackageDetails().getDimensions())
+                .description(dto.getPackageDetails().getDescription())
+                .build();
+
+        Delivery delivery = Delivery.builder()
+                .customerId(customerId)
+                .trackingNumber(trackingNumber)
+                .senderName(dto.getSenderName())
+                .senderAddress(senderAddress)
+                .receiverAddress(receiverAddress)
+                .receiverName(dto.getReceiverName())
+                .receiverAddress(receiverAddress)
+                .packageDetails(packageDetails)
+                .status(DeliveryStatus.BOOKED)
+                .build();
+
+        return deliveryRepository.save(delivery);
+    }
+
+    public Delivery getDeliveryByTrackingNumber(String trackingNumber) {
+        return deliveryRepository.findByTrackingNumber(trackingNumber)
+                .orElseThrow(() -> new RuntimeException("Delivery not found with trackingNumber : " + trackingNumber));
+    }
+}
