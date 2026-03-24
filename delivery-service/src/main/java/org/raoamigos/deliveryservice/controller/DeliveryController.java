@@ -8,6 +8,8 @@ import org.raoamigos.deliveryservice.service.DeliveryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/deliveries")
 @RequiredArgsConstructor
@@ -26,6 +28,11 @@ public class DeliveryController {
     @GetMapping("/{trackingNumber}")
     public ResponseEntity<Delivery> getDeliveryByTrackingNumber(@PathVariable String trackingNumber) {
         return ResponseEntity.ok(deliveryService.getDeliveryByTrackingNumber(trackingNumber));
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Delivery>> getMyDeliveries(@RequestHeader("X-User_id") Long customerId) {
+        return ResponseEntity.ok(deliveryService.getMyDeliveries(customerId));
     }
 
 }
