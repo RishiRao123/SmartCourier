@@ -6,4 +6,6 @@ import org.raoamigos.deliveryservice.entity.Delivery;
 public interface DeliveryService {
 
     Delivery createDelivery(DeliveryRequestDTO deliveryRequestDTO, Long customerId);
+
+    Delivery getDeliveryByTrackingNumber(String trackingNumber);
 }
