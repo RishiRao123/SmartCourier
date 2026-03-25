@@ -2,6 +2,7 @@ package org.raoamigos.authservice.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.raoamigos.authservice.dto.ApiResponse;
 import org.raoamigos.authservice.dto.LoginRequestDTO;
 import org.raoamigos.authservice.dto.RegisterRequestDTO;
 import org.raoamigos.authservice.service.AuthService;
@@ -19,13 +20,16 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@Valid @RequestBody RegisterRequestDTO dto) {
-        return ResponseEntity.ok(authService.register(dto));
+    public ResponseEntity<ApiResponse<String>> signup(@Valid @RequestBody RegisterRequestDTO dto) {
+        String msg = authService.register(dto);
+        ApiResponse<String> response = ApiResponse.success(msg, null);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDTO dto) {
-        return ResponseEntity.ok(authService.login(dto));
+    public ResponseEntity<ApiResponse<String>> login(@Valid @RequestBody LoginRequestDTO dto) {
+        String token  = authService.login(dto);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", token));
     }
 
 }

@@ -31,7 +31,7 @@ public class DeliveryController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Delivery>> getMyDeliveries(@RequestHeader("X-User_id") Long customerId) {
+    public ResponseEntity<List<Delivery>> getMyDeliveries(@RequestHeader("X-User-Id") Long customerId) {
         return ResponseEntity.ok(deliveryService.getMyDeliveries(customerId));
     }
 
