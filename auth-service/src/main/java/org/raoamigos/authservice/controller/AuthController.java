@@ -21,14 +21,13 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<String>> signup(@Valid @RequestBody RegisterRequestDTO dto) {
-        String msg = authService.register(dto);
-        ApiResponse<String> response = ApiResponse.success(msg, null);
-        return ResponseEntity.ok(response);
+        String message = authService.register(dto);
+        return ResponseEntity.ok(ApiResponse.success("User registered successfully", message));
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<String>> login(@Valid @RequestBody LoginRequestDTO dto) {
-        String token  = authService.login(dto);
+        String token = authService.login(dto);
         return ResponseEntity.ok(ApiResponse.success("Login successful", token));
     }
 
