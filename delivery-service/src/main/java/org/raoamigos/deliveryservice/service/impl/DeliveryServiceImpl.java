@@ -2,12 +2,14 @@ package org.raoamigos.deliveryservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.raoamigos.deliveryservice.dto.DeliveryRequestDTO;
+import org.raoamigos.deliveryservice.dto.DeliveryUpdateEvent;
 import org.raoamigos.deliveryservice.entity.Address;
 import org.raoamigos.deliveryservice.entity.Delivery;
 import org.raoamigos.deliveryservice.entity.DeliveryStatus;
 import org.raoamigos.deliveryservice.entity.PackageDetails;
 import org.raoamigos.deliveryservice.repository.DeliveryRepository;
 import org.raoamigos.deliveryservice.service.DeliveryService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class DeliveryServiceImpl implements DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public Delivery createDelivery(DeliveryRequestDTO dto, Long customerId) {
@@ -56,7 +59,17 @@ public class DeliveryServiceImpl implements DeliveryService {
                 .status(DeliveryStatus.BOOKED)
                 .build();
 
-        return deliveryRepository.save(delivery);
+        Delivery saved = deliveryRepository.save(delivery);
+
+        DeliveryUpdateEvent event = new DeliveryUpdateEvent(
+                saved.getTrackingNumber(),
+                saved.getStatus().name(),
+                "Delivery request created and booked successfully."
+        );
+
+        rabbitTemplate.convertAndSend("delivery.exchange", "delivery.routing.key", event);
+
+        return saved;
     }
 
     public Delivery getDeliveryByTrackingNumber(String trackingNumber) {
