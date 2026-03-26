@@ -1,3 +1,21 @@
 spring:
   application:
     name: tracking-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/tracking_db
+    username: root
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+server:
+  port: 8083
+
