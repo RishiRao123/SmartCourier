@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.raoamigos.deliveryservice.dto.ApiResponse;
 import org.raoamigos.deliveryservice.dto.DeliveryRequestDTO;
 import org.raoamigos.deliveryservice.entity.Delivery;
+import org.raoamigos.deliveryservice.entity.DeliveryStatus;
 import org.raoamigos.deliveryservice.service.DeliveryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,4 +39,11 @@ public class DeliveryController {
         List<Delivery> deliveries = deliveryService.getMyDeliveries(customerId);
         return ResponseEntity.ok(ApiResponse.success("User deliveries fetched successfully", deliveries));
     }
+
+    @PutMapping("/{trackingNumber}/status")
+    public ResponseEntity<ApiResponse<Delivery>> updateStatus(@PathVariable String trackingNumber, @RequestParam DeliveryStatus newStatus) {
+        Delivery updateDelivery = deliveryService.updateDeliveryStatus(trackingNumber, newStatus);
+        return ResponseEntity.ok(ApiResponse.success("Status updated successfully", updateDelivery));
+    }
+
 }
