@@ -1,6 +1,6 @@
 spring:
   application:
-    name: TRACKING-SERVICE
+    name: ADMIN-SERVICE
 
   datasource:
     url: jdbc:mysql://localhost:3306/tracking_db
@@ -14,16 +14,5 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 5MB
-      max-request-size: 5MB
-
-file:
-  upload-dir: C:\Users\Rishi Rao\IdeaProjects\SmartCourier\tracking-service\tracking-uploads\
-
 server:
-  port: 8083
-
+  port: 8084
