@@ -5,10 +5,7 @@ import org.raoamigos.adminservice.client.DeliveryClient;
 import org.raoamigos.adminservice.dto.ApiResponse;
 import org.raoamigos.adminservice.dto.DeliveryDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin")
@@ -22,4 +19,12 @@ public class AdminController {
         ApiResponse<DeliveryDTO> response = deliveryClient.getDeliveryByTrackingNumber(trackingNumber);
         return ResponseEntity.ok(ApiResponse.success("Successfully fetched cross-service data", response.getData()));
     }
+
+    @PutMapping("/deliveries/{trackingNumber}/resolve")
+    public ResponseEntity<ApiResponse<DeliveryDTO>> resolveDeliveryException(@PathVariable String trackingNumber, @RequestParam String status) {
+        ApiResponse<DeliveryDTO> updatedDelivery = deliveryClient.updateDeliveryStatus(trackingNumber, status);
+        return ResponseEntity.ok(ApiResponse.success("Exception resolved successfully", updatedDelivery.getData()));
+    }
+
+
 }
