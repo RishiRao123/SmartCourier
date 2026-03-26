@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "DELIVERY-SERVICE", url = "http://localhost:8082")
+@FeignClient(name = "DELIVERY-SERVICE")
 public interface DeliveryClient {
 
     @GetMapping("/deliveries/{trackingNumber}")
