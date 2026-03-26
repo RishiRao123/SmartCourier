@@ -72,12 +72,34 @@ public class DeliveryServiceImpl implements DeliveryService {
         return saved;
     }
 
+    @Override
     public Delivery getDeliveryByTrackingNumber(String trackingNumber) {
         return deliveryRepository.findByTrackingNumber(trackingNumber)
                 .orElseThrow(() -> new RuntimeException("Delivery not found with trackingNumber : " + trackingNumber));
     }
 
+    @Override
     public List<Delivery> getMyDeliveries(Long customerId) {
         return deliveryRepository.findByCustomerId(customerId);
     }
+
+    @Override
+    public Delivery updateDeliveryStatus(String trackingNumber, DeliveryStatus newStatus) {
+        Delivery delivery = getDeliveryByTrackingNumber(trackingNumber);
+        delivery.setStatus(newStatus);
+
+        Delivery saved = deliveryRepository.save(delivery);
+
+        DeliveryUpdateEvent event = new DeliveryUpdateEvent(
+                saved.getTrackingNumber(),
+                saved.getStatus().name(),
+                "Delivery status manually updated by Admin to: " + newStatus.name()
+        );
+
+        rabbitTemplate.convertAndSend("delivery.exchange", "delivery.routing.key", event);
+
+        return saved;
+
+    }
+
 }
