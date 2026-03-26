@@ -14,6 +14,8 @@ public interface DeliveryClient {
     @GetMapping("/deliveries/{trackingNumber}")
     ApiResponse<DeliveryDTO> getDeliveryByTrackingNumber(@PathVariable("trackingNumber") String trackingNumber);
 
-    @PutMapping("/{trackingNumber}/status")
-    ApiResponse<DeliveryDTO> updateDeliveryStatus(@PathVariable String trackingNumber, @RequestParam("status") String status);
+    @PutMapping("/deliveries/{trackingNumber}/status")
+    ApiResponse<DeliveryDTO> updateDeliveryStatus(
+            @PathVariable("trackingNumber") String trackingNumber,
+            @RequestParam("status") String status);
 }

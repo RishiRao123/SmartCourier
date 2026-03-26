@@ -21,8 +21,8 @@ public class AdminController {
     }
 
     @PutMapping("/deliveries/{trackingNumber}/resolve")
-    public ResponseEntity<ApiResponse<DeliveryDTO>> resolveDeliveryException(@PathVariable String trackingNumber, @RequestParam String status) {
-        ApiResponse<DeliveryDTO> updatedDelivery = deliveryClient.updateDeliveryStatus(trackingNumber, status);
+    public ResponseEntity<ApiResponse<DeliveryDTO>> resolveDeliveryException(@PathVariable String trackingNumber, @RequestParam String newStatus) {
+        ApiResponse<DeliveryDTO> updatedDelivery = deliveryClient.updateDeliveryStatus(trackingNumber, newStatus);
         return ResponseEntity.ok(ApiResponse.success("Exception resolved successfully", updatedDelivery.getData()));
     }
 

@@ -41,7 +41,7 @@ public class DeliveryController {
     }
 
     @PutMapping("/{trackingNumber}/status")
-    public ResponseEntity<ApiResponse<Delivery>> updateStatus(@PathVariable String trackingNumber, @RequestParam DeliveryStatus newStatus) {
+    public ResponseEntity<ApiResponse<Delivery>> updateStatus(@PathVariable String trackingNumber, @RequestParam("status") DeliveryStatus newStatus) {
         Delivery updateDelivery = deliveryService.updateDeliveryStatus(trackingNumber, newStatus);
         return ResponseEntity.ok(ApiResponse.success("Status updated successfully", updateDelivery));
     }
