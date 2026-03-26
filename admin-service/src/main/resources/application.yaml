@@ -3,7 +3,7 @@ spring:
     name: ADMIN-SERVICE
 
   datasource:
-    url: jdbc:mysql://localhost:3306/tracking_db
+    url: jdbc:mysql://localhost:3306/admin_db
     username: root
     password: ${DB_PASSWORD}
 
@@ -14,5 +14,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
 server:
   port: 8084
