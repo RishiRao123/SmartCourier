@@ -18,18 +18,25 @@ spring:
           uri: lb://DELIVERY-SERVICE
           predicates:
             - Path=/deliveries/**
+          filters:
+            - AuthenticationFilter
 
         # 3. Tracking Service Routes
         - id: tracking-service
           uri: lb://TRACKING-SERVICE
           predicates:
             - Path=/tracking/**
+          filters:
+            - AuthenticationFilter
 
         # 4. Admin Service Routes
         - id: admin-service
           uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/admin/**
+          filters:
+            - AuthenticationFilter
+
 eureka:
   client:
     service-url:
@@ -38,3 +45,5 @@ eureka:
     prefer-ip-address: true
     hostname: localhost
 
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
