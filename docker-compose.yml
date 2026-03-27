@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # 1. The Databases
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: auth_db
+    ports:
+      - "3307:3306"
+
+    command: >
+      bash -c "
+      echo 'CREATE DATABASE IF NOT EXISTS delivery_db; CREATE DATABASE IF NOT EXISTS tracking_db;' > /docker-entrypoint-initdb.d/init.sql
+      && docker-entrypoint.sh mysqld
+      "
+
+  # 2. The Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # App port
+      - "15672:15672" # UI port
+
+  # 3. The Phonebook
+  service-registry:
+    build: ./service-registry
+    container_name: service-registry
+    restart: on-failure
+    ports:
+      - "8761:8761"
+
+  # 4. The Microservices
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    restart: on-failure
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/auth_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      - mysql-db
+      - service-registry
+
+  delivery-service:
+    build: ./delivery-service
+    container_name: delivery-service
+    restart: on-failure
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/delivery_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      - mysql-db
+      - rabbitmq
+      - service-registry
+
+  tracking-service:
+    build: ./tracking-service
+    container_name: tracking-service
+    restart: on-failure
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/tracking_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      - mysql-db
+      - rabbitmq
+      - service-registry
+
+  admin-service:
+    build: ./admin-service
+    container_name: admin-service
+    restart: on-failure
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      - service-registry
+
+  # 5. The Front Door
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      - service-registry
+      - auth-service
+      - delivery-service
+      - tracking-service
+      - admin-service
