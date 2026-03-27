@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.raoamigos.trackingservice.dto.ApiResponse;
 import org.raoamigos.trackingservice.entity.Document;
 import org.raoamigos.trackingservice.entity.TrackingEvent;
+import org.raoamigos.trackingservice.repository.TrackingEventRepository;
 import org.raoamigos.trackingservice.service.DocumentService;
 import org.raoamigos.trackingservice.service.TrackingService;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class TrackingController {
 
     private final TrackingService trackingService;
     private final DocumentService documentService;
+    private final TrackingEventRepository trackingEventRepository;
 
 
     @GetMapping("/{trackingNumber}")
@@ -41,4 +43,11 @@ public class TrackingController {
         Document uploadedDoc = documentService.uploadDocument(trackingNumber, file);
         return ResponseEntity.ok(ApiResponse.success("Document uploaded successfully", uploadedDoc));
     }
+
+    @GetMapping("/stats/count")
+    public ResponseEntity<ApiResponse<Long>> getTotalTrackingEvents() {
+        long count = trackingEventRepository.count();
+        return ResponseEntity.ok(ApiResponse.success("Total tracking events fetched", count));
+    }
+
 }

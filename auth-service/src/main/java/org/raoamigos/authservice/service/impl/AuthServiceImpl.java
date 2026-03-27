@@ -53,4 +53,21 @@ public class AuthServiceImpl implements AuthService {
         return "token: " + jwtUtil.generateToken(user.getEmail(), user.getRole().name());
     }
 
+    @Override
+    public String registerAdmin(RegisterRequestDTO dto) {
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User user = User.builder()
+                .username(dto.getUsername())
+                .email(dto.getEmail())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .role(Role.ROLE_ADMIN)
+                .build();
+
+        userRepository.save(user);
+        return "Admin registered successfully";
+    }
+
 }

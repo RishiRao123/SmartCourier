@@ -12,4 +12,5 @@ public interface DeliveryService {
     List<Delivery> getMyDeliveries(Long customerId);
     Delivery getDeliveryByTrackingNumber(String trackingNumber);
     Delivery updateDeliveryStatus(String trackingNumber, DeliveryStatus newStatus);
+    Delivery markAsDelivered(String trackingNumber);
 }

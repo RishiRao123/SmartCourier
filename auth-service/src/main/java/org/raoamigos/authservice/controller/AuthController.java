@@ -31,4 +31,10 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", token));
     }
 
+    @PostMapping("/admin/signup")
+    public ResponseEntity<ApiResponse<String>> adminSignup(@Valid @RequestBody RegisterRequestDTO dto) {
+        String message = authService.registerAdmin(dto);
+        return ResponseEntity.ok(ApiResponse.success("Admin registered successfully", message));
+    }
+
 }

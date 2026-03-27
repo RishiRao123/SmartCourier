@@ -102,4 +102,22 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     }
 
+    @Override
+    public Delivery markAsDelivered(String trackingNumber) {
+        Delivery delivery = getDeliveryByTrackingNumber(trackingNumber);
+
+        delivery.setStatus(DeliveryStatus.DELIVERED);
+
+        Delivery savedDelivery = deliveryRepository.save(delivery);
+
+        DeliveryUpdateEvent event = new DeliveryUpdateEvent(
+                savedDelivery.getTrackingNumber(),
+                savedDelivery.getStatus().name(),
+                "Package has been successfully delivered to the customer."
+        );
+        rabbitTemplate.convertAndSend("delivery.exchange", "delivery.routing.key", event);
+
+        return savedDelivery;
+    }
+
 }

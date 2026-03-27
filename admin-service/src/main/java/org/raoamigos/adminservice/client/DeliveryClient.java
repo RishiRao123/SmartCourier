@@ -18,4 +18,10 @@ public interface DeliveryClient {
     ApiResponse<DeliveryDTO> updateDeliveryStatus(
             @PathVariable("trackingNumber") String trackingNumber,
             @RequestParam("status") String status);
+
+    @GetMapping("/deliveries/stats/count")
+    ApiResponse<Long> getTotalDeliveries();
+
+    @PutMapping("/deliveries/{trackingNumber}/deliver")
+    ApiResponse<DeliveryDTO> markDelivered(@PathVariable("trackingNumber") String trackingNumber);
 }

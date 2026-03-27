@@ -39,13 +39,26 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
                 try {
                     jwtUtil.validateToken(authHeader);
+
                     String userId = jwtUtil.extractUserId(authHeader);
+                    String role = jwtUtil.extractRole(authHeader);
+
+                    if (exchange.getRequest().getURI().getPath().startsWith("/admin")) {
+                        if (!"ROLE_ADMIN".equals(role)) {
+                            System.out.println("Blocked: User " + userId + " tried to access Admin route with role " + role);
+                            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied: Admin privileges required");
+                        }
+                    }
+
                     exchange = exchange.mutate()
                             .request(exchange.getRequest().mutate()
                                     .header("X-User-Id", userId)
+                                    .header("X-User-Role", role)
                                     .build())
                             .build();
 
+                } catch (ResponseStatusException e) {
+                    throw e;
                 } catch (Exception e) {
                     System.out.println("Invalid access...!");
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access to application");

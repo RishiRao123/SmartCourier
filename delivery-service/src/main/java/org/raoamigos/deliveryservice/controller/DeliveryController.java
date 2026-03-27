@@ -6,6 +6,7 @@ import org.raoamigos.deliveryservice.dto.ApiResponse;
 import org.raoamigos.deliveryservice.dto.DeliveryRequestDTO;
 import org.raoamigos.deliveryservice.entity.Delivery;
 import org.raoamigos.deliveryservice.entity.DeliveryStatus;
+import org.raoamigos.deliveryservice.repository.DeliveryRepository;
 import org.raoamigos.deliveryservice.service.DeliveryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.List;
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
+    private final DeliveryRepository deliveryRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<Delivery>> createDelivery(
@@ -44,6 +46,19 @@ public class DeliveryController {
     public ResponseEntity<ApiResponse<Delivery>> updateStatus(@PathVariable String trackingNumber, @RequestParam("status") DeliveryStatus newStatus) {
         Delivery updateDelivery = deliveryService.updateDeliveryStatus(trackingNumber, newStatus);
         return ResponseEntity.ok(ApiResponse.success("Status updated successfully", updateDelivery));
+    }
+
+    @GetMapping("/stats/count")
+    public ResponseEntity<ApiResponse<Long>> getTotalDeliveries() {
+        long count = deliveryRepository.count();
+        return ResponseEntity.ok(ApiResponse.success("Total deliveries fetched", count));
+    }
+
+    @PutMapping("/{trackingNumber}/deliver")
+    public ResponseEntity<ApiResponse<Delivery>> markDelivered(@PathVariable String trackingNumber) {
+
+        Delivery updatedDelivery = deliveryService.markAsDelivered(trackingNumber);
+        return ResponseEntity.ok(ApiResponse.success("Package marked as delivered", updatedDelivery));
     }
 
 }
