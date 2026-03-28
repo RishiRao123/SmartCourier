@@ -6,6 +6,7 @@ spring:
     url: jdbc:mysql://localhost:3306/auth_db
     username: root
     password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -20,7 +21,7 @@ server:
 
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-  expiration: 86400000 # 1 day in milliseconds
+  expiration: 86400000
 
 eureka:
   client:

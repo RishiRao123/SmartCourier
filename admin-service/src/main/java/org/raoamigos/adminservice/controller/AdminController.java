@@ -7,17 +7,19 @@ import org.raoamigos.adminservice.dto.ApiResponse;
 import org.raoamigos.adminservice.dto.DeliveryDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.HashMap;
 import java.util.Map;
 
+
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final DeliveryClient deliveryClient;
-
     private final TrackingClient trackingClient;
 
     @GetMapping("/deliveries/{trackingNumber}")
@@ -34,7 +36,6 @@ public class AdminController {
 
     @GetMapping("/dashboard/stats")
     public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats() {
-
         ApiResponse<Long> deliveryResponse = deliveryClient.getTotalDeliveries();
         ApiResponse<Long> trackingResponse = trackingClient.getTotalTrackingEvents();
         Map<String, Long> dashboardData = new HashMap<>();
@@ -46,10 +47,7 @@ public class AdminController {
 
     @PutMapping("/deliveries/{trackingNumber}/deliver")
     public ResponseEntity<ApiResponse<DeliveryDTO>> markDeliveryComplete(@PathVariable String trackingNumber) {
-
         ApiResponse<DeliveryDTO> response = deliveryClient.markDelivered(trackingNumber);
-
         return ResponseEntity.ok(ApiResponse.success("Admin successfully finalized delivery", response.getData()));
     }
-
 }

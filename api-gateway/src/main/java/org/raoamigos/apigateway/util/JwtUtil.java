@@ -20,8 +20,13 @@ public class JwtUtil {
     }
 
     public String extractUserId(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
-        return claims.getSubject();
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return String.valueOf(claims.get("userId"));
     }
 
     public String extractRole(String token) {
