@@ -25,21 +25,21 @@ public class TrackingController {
     private final TrackingEventRepository trackingEventRepository;
 
     @GetMapping("/{trackingNumber}")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')") // Both can view history
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     public ResponseEntity<ApiResponse<List<TrackingEvent>>> getTrackingHistory(@PathVariable String trackingNumber) {
         List<TrackingEvent> history = trackingService.getTrackingHistory(trackingNumber);
         return ResponseEntity.ok(ApiResponse.success("Tracking history fetched successfully", history));
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')") // Only Admins can view ALL trackings everywhere
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<TrackingEvent>>> getAllTrackings() {
         List<TrackingEvent> trackings = trackingService.getAllTrackings();
         return ResponseEntity.ok(ApiResponse.success("Trackings fetched successfully", trackings));
     }
 
     @PostMapping(value = "/{trackingNumber}/documents", consumes = "multipart/form-data")
-    @PreAuthorize("hasRole('ADMIN')") // Only internal staff/admins upload proof documents
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Document>> uploadDocument(
             @PathVariable String trackingNumber,
             @RequestParam("file") MultipartFile file) {
@@ -52,5 +52,29 @@ public class TrackingController {
     public ResponseEntity<ApiResponse<Long>> getTotalTrackingEvents() {
         long count = trackingEventRepository.count();
         return ResponseEntity.ok(ApiResponse.success("Total tracking events fetched", count));
+    }
+
+    @GetMapping("/{trackingNumber}/latest")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public ResponseEntity<TrackingEvent> getLatestStatus(@PathVariable String trackingNumber) {
+        return ResponseEntity.ok(trackingService.getLatestEvent(trackingNumber));
+    }
+
+    @GetMapping("/{trackingNumber}/count")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public ResponseEntity<Long> getUpdateCount(@PathVariable String trackingNumber) {
+        return ResponseEntity.ok(trackingService.getUpdateCount(trackingNumber));
+    }
+
+    @GetMapping("/admin/status/{status}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<TrackingEvent>> getEventsByStatus(@PathVariable String status) {
+        return ResponseEntity.ok(trackingService.getEventsByStatus(status));
+    }
+
+    @GetMapping("/admin/recent")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<TrackingEvent>> getRecentEvents(@RequestParam(defaultValue = "7") int days) {
+        return ResponseEntity.ok(trackingService.getRecentSystemEvents(days));
     }
 }

@@ -6,6 +6,7 @@ import org.raoamigos.trackingservice.repository.TrackingEventRepository;
 import org.raoamigos.trackingservice.service.TrackingService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,6 +24,38 @@ public class TrackingServiceImpl implements TrackingService {
         }
 
         return events;
+    }
+
+    @Override
+    public void saveTrackingEvent(TrackingEvent event) {
+        trackingEventRepository.save(event);
+    }
+
+    @Override
+    public List<TrackingEvent> getFullHistory(String trackingNumber) {
+        return trackingEventRepository.findByTrackingNumberOrderByTimestampDesc(trackingNumber);
+    }
+
+    @Override
+    public TrackingEvent getLatestEvent(String trackingNumber) {
+        return trackingEventRepository.findFirstByTrackingNumberOrderByTimestampDesc(trackingNumber)
+                .orElseThrow(() -> new RuntimeException("No tracking history found for: " + trackingNumber));
+    }
+
+    @Override
+    public List<TrackingEvent> getEventsByStatus(String status) {
+        return trackingEventRepository.findByStatusOrderByTimestampDesc(status);
+    }
+
+    @Override
+    public List<TrackingEvent> getRecentSystemEvents(int days) {
+        LocalDateTime cutoffDate = LocalDateTime.now().minusDays(days);
+        return trackingEventRepository.findByTimestampAfterOrderByTimestampDesc(cutoffDate);
+    }
+
+    @Override
+    public long getUpdateCount(String trackingNumber) {
+        return trackingEventRepository.countByTrackingNumber(trackingNumber);
     }
 
     @Override
