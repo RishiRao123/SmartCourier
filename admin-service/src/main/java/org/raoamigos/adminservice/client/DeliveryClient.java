@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @FeignClient(name = "DELIVERY-SERVICE")
 public interface DeliveryClient {
 
@@ -24,4 +26,18 @@ public interface DeliveryClient {
 
     @PutMapping("/deliveries/{trackingNumber}/deliver")
     ApiResponse<DeliveryDTO> markDelivered(@PathVariable("trackingNumber") String trackingNumber);
+
+    @GetMapping("/deliveries/admin/status/{status}")
+    ApiResponse<List<DeliveryDTO>> getDeliveriesByStatus(@PathVariable("status") String status);
+
+    @GetMapping("/deliveries/admin/status/{status}/count")
+    ApiResponse<Long> countDeliveriesByStatus(@PathVariable("status") String status);
+
+    @GetMapping("/deliveries/admin/city/{city}")
+    ApiResponse<List<DeliveryDTO>> getDeliveriesByCity(@PathVariable("city") String city);
+
+    @GetMapping("/deliveries/admin/report")
+    ApiResponse<List<DeliveryDTO>> getDeliveriesByDateRange(
+            @RequestParam("start") String start,
+            @RequestParam("end") String end);
 }
