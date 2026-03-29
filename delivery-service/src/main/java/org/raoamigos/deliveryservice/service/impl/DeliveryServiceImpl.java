@@ -12,6 +12,7 @@ import org.raoamigos.deliveryservice.service.DeliveryService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -118,6 +119,32 @@ public class DeliveryServiceImpl implements DeliveryService {
         rabbitTemplate.convertAndSend("delivery.exchange", "delivery.routing.key", event);
 
         return savedDelivery;
+    }
+
+    @Override
+    public List<Delivery> getMyActiveDeliveries(Long customerId) {
+        // Fetch all deliveries for this customer that are NOT marked as DELIVERED
+        return deliveryRepository.findByCustomerIdAndStatusNot(customerId, DeliveryStatus.DELIVERED);
+    }
+
+    @Override
+    public List<Delivery> getDeliveriesByStatus(DeliveryStatus status) {
+        return deliveryRepository.findByStatus(status);
+    }
+
+    @Override
+    public long countDeliveriesByStatus(DeliveryStatus status) {
+        return deliveryRepository.countByStatus(status);
+    }
+
+    @Override
+    public List<Delivery> getDeliveriesByCity(String city) {
+        return deliveryRepository.findByReceiverAddressCityIgnoreCase(city);
+    }
+
+    @Override
+    public List<Delivery> getDeliveriesByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return deliveryRepository.findByCreatedAtBetween(startDate, endDate);
     }
 
 }

@@ -8,10 +8,12 @@ import org.raoamigos.deliveryservice.entity.Delivery;
 import org.raoamigos.deliveryservice.entity.DeliveryStatus;
 import org.raoamigos.deliveryservice.repository.DeliveryRepository;
 import org.raoamigos.deliveryservice.service.DeliveryService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -64,5 +66,45 @@ public class DeliveryController {
     public ResponseEntity<ApiResponse<Delivery>> markDelivered(@PathVariable String trackingNumber) {
         Delivery updatedDelivery = deliveryService.markAsDelivered(trackingNumber);
         return ResponseEntity.ok(ApiResponse.success("Package marked as delivered", updatedDelivery));
+    }
+
+    @GetMapping("/my/active")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<ApiResponse<List<Delivery>>> getMyActiveDeliveries(@RequestHeader("X-User-Id") Long customerId) {
+        List<Delivery> activeDeliveries = deliveryService.getMyActiveDeliveries(customerId);
+        return ResponseEntity.ok(ApiResponse.success("Active deliveries fetched", activeDeliveries));
+    }
+
+    // 2. Global Status Search (ADMIN ONLY)
+    @GetMapping("/admin/status/{status}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<Delivery>>> getByStatus(@PathVariable DeliveryStatus status) {
+        List<Delivery> deliveries = deliveryService.getDeliveriesByStatus(status);
+        return ResponseEntity.ok(ApiResponse.success("Deliveries fetched by status", deliveries));
+    }
+
+    // 3. Global Status Count (ADMIN ONLY)
+    @GetMapping("/admin/status/{status}/count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Long>> countByStatus(@PathVariable DeliveryStatus status) {
+        long count = deliveryService.countDeliveriesByStatus(status);
+        return ResponseEntity.ok(ApiResponse.success("Count fetched", count));
+    }
+
+    // 4. Global City Search (ADMIN ONLY)
+    @GetMapping("/admin/city/{city}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<Delivery>>> getByCity(@PathVariable String city) {
+        List<Delivery> deliveries = deliveryService.getDeliveriesByCity(city);
+        return ResponseEntity.ok(ApiResponse.success("Deliveries to " + city + " fetched", deliveries));
+    }
+
+    @GetMapping("/admin/report")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<Delivery>>> getByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        List<Delivery> deliveries = deliveryService.getDeliveriesByDateRange(start, end);
+        return ResponseEntity.ok(ApiResponse.success("Deliveries in date range fetched", deliveries));
     }
 }
