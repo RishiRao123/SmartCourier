@@ -109,3 +109,9 @@ services:
       - delivery-service
       - tracking-service
       - admin-service
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin-server
+    ports:
+      - "9411:9411"
