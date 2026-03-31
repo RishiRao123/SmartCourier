@@ -3,14 +3,13 @@ package org.raoamigos.trackingservice.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.raoamigos.trackingservice.entity.Document;
-import org.raoamigos.trackingservice.repository.DocumnetRepository;
+import org.raoamigos.trackingservice.repository.DocumentRepository;
 import org.raoamigos.trackingservice.service.DocumentService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +22,7 @@ import java.util.UUID;
 @Slf4j
 public class DocumentServiceImpl implements DocumentService {
 
-    private final DocumnetRepository documnetRepository;
+    private final DocumentRepository documnetRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;

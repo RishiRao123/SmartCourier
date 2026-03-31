@@ -1,4 +1,4 @@
-package org.raoamigos.adminservice.config;
+package org.raoamigos.trackingservice.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

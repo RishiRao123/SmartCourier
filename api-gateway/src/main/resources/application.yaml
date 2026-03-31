@@ -4,6 +4,12 @@ spring:
 
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*" # Allows requests from any port (great for local dev)
+            allowedMethods: "*" # Allows GET, POST, PUT, DELETE, OPTIONS
+            allowedHeaders: "*" # Allows the Authorization header to pass through
       discovery:
         locator:
           enabled: true
