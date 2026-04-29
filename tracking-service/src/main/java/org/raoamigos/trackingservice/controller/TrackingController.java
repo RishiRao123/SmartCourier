@@ -31,7 +31,7 @@ public class TrackingController {
         return ResponseEntity.ok(ApiResponse.success("Tracking history fetched successfully", history));
     }
 
-    @GetMapping
+    @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<TrackingEvent>>> getAllTrackings() {
         List<TrackingEvent> trackings = trackingService.getAllTrackings();
@@ -47,7 +47,7 @@ public class TrackingController {
         return ResponseEntity.ok(ApiResponse.success("Document uploaded successfully", uploadedDoc));
     }
 
-    @GetMapping("/stats/count")
+    @GetMapping("admin/stats/count")
     @PreAuthorize("hasRole('ADMIN')") // Only Admins can see stats
     public ResponseEntity<ApiResponse<Long>> getTotalTrackingEvents() {
         long count = trackingEventRepository.count();

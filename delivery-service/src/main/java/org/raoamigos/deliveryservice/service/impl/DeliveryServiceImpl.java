@@ -55,7 +55,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                 .senderAddress(senderAddress)
                 .receiverAddress(receiverAddress)
                 .receiverName(dto.getReceiverName())
-                .receiverAddress(receiverAddress)
                 .packageDetails(packageDetails)
                 .status(DeliveryStatus.BOOKED)
                 .build();
