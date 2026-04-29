@@ -94,8 +94,6 @@ services:
     restart: on-failure
     ports:
       - "8084:8084"
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
     depends_on:
       - service-registry
       - config-server
