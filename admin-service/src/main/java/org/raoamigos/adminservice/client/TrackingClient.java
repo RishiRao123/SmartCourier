@@ -12,11 +12,11 @@ import java.util.List;
 @FeignClient(name = "TRACKING-SERVICE")
 public interface TrackingClient {
 
-    @GetMapping("/tracking/stats/count")
+    @GetMapping("/tracking/admin/stats/count")
     ApiResponse<Long> getTotalTrackingEvents();
 
-    @GetMapping("/tracking/{trackingNumber}/history")
-    List<TrackingEventDTO> getTrackingHistory(@PathVariable("trackingNumber") String trackingNumber);
+    @GetMapping("/tracking/{trackingNumber}")
+    ApiResponse<List<TrackingEventDTO>> getTrackingHistory(@PathVariable("trackingNumber") String trackingNumber);
 
     @GetMapping("/tracking/admin/status/{status}")
     List<TrackingEventDTO> getTrackingEventsByStatus(@PathVariable("status") String status);
