@@ -72,8 +72,8 @@ public class AdminController {
 
 
     @GetMapping("/dashboard/tracking/{trackingNumber}/history")
-    public ResponseEntity<List<TrackingEventDTO>> getFullTrackingHistory(@PathVariable String trackingNumber) {
-        return ResponseEntity.ok(trackingClient.getTrackingHistory(trackingNumber).getData());
+    public ResponseEntity<ApiResponse<List<TrackingEventDTO>>> getFullTrackingHistory(@PathVariable String trackingNumber) {
+        return ResponseEntity.ok(trackingClient.getTrackingHistory(trackingNumber));
     }
 
     @GetMapping("/dashboard/tracking/recent")
