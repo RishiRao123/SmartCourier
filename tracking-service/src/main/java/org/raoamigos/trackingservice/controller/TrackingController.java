@@ -7,6 +7,9 @@ import org.raoamigos.trackingservice.entity.TrackingEvent;
 import org.raoamigos.trackingservice.repository.TrackingEventRepository;
 import org.raoamigos.trackingservice.service.DocumentService;
 import org.raoamigos.trackingservice.service.TrackingService;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,12 +42,33 @@ public class TrackingController {
     }
 
     @PostMapping(value = "/{trackingNumber}/documents", consumes = "multipart/form-data")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     public ResponseEntity<ApiResponse<Document>> uploadDocument(
             @PathVariable String trackingNumber,
-            @RequestParam("file") MultipartFile file) {
-        Document uploadedDoc = documentService.uploadDocument(trackingNumber, file);
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("X-User-Role") String role) {
+        Document uploadedDoc = documentService.uploadDocument(trackingNumber, file, userId, role);
         return ResponseEntity.ok(ApiResponse.success("Document uploaded successfully", uploadedDoc));
+    }
+
+    @GetMapping("/{trackingNumber}/documents")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<List<Document>>> getDocuments(@PathVariable String trackingNumber) {
+        List<Document> documents = documentService.getDocumentsByTrackingNumber(trackingNumber);
+        return ResponseEntity.ok(ApiResponse.success("Documents fetched successfully", documents));
+    }
+
+    @GetMapping("/documents/{id}/download")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public ResponseEntity<Resource> downloadDocument(@PathVariable Long id) {
+        Resource file = documentService.getDocumentFile(id);
+        Document metadata = documentService.getDocumentMetadata(id);
+        
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + metadata.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(metadata.getFileType()))
+                .body(file);
     }
 
     @GetMapping("admin/stats/count")

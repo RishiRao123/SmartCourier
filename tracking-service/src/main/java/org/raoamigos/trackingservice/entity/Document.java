@@ -33,6 +33,9 @@ public class Document {
     @Column(nullable = false)
     private String filePath;
 
+    private Long uploadedBy;
+    private String uploaderRole;
+
     @CreationTimestamp
     private     LocalDateTime uploadedAt;
 

@@ -19,4 +19,5 @@ public interface DeliveryService {
     long countDeliveriesByStatus(DeliveryStatus status);
     List<Delivery> getDeliveriesByCity(String city);
     List<Delivery> getDeliveriesByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    List<Delivery> searchDeliveries(DeliveryStatus status, String city, LocalDateTime start, LocalDateTime end);
 }

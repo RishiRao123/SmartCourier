@@ -30,6 +30,14 @@ public class JwtUtil {
         return createToken(claims, email);
     }
 
+    public String generateToken(String email, Long userId, String role, String username) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("userId", userId);
+        claims.put("username", username);
+        return createToken(claims, email);
+    }
+
     private String createToken(Map<String, Object> claims, String subject) {
 
         return Jwts.builder()
@@ -75,5 +83,4 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
 
     }
-
 }

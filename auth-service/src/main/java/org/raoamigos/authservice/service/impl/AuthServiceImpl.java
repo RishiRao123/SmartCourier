@@ -50,7 +50,8 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return "token: " + jwtUtil.generateToken(user.getEmail(), user.getId(), user.getRole().name());
+        // Include username in the JWT for frontend display
+        return "token: " + jwtUtil.generateToken(user.getEmail(), user.getId(), user.getRole().name(), user.getUsername());
     }
 
     @Override

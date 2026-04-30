@@ -146,4 +146,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         return deliveryRepository.findByCreatedAtBetween(startDate, endDate);
     }
 
+    @Override
+    public List<Delivery> searchDeliveries(DeliveryStatus status, String city, LocalDateTime start, LocalDateTime end) {
+        List<Delivery> all = deliveryRepository.findAll();
+        
+        return all.stream()
+                .filter(d -> status == null || d.getStatus() == status)
+                .filter(d -> city == null || city.isEmpty() || 
+                        d.getReceiverAddress().getCity().equalsIgnoreCase(city) || 
+                        d.getSenderAddress().getCity().equalsIgnoreCase(city))
+                .filter(d -> start == null || d.getCreatedAt().isAfter(start))
+                .filter(d -> end == null || d.getCreatedAt().isBefore(end))
+                .toList();
+    }
 }

@@ -107,4 +107,15 @@ public class DeliveryController {
         List<Delivery> deliveries = deliveryService.getDeliveriesByDateRange(start, end);
         return ResponseEntity.ok(ApiResponse.success("Deliveries in date range fetched", deliveries));
     }
+
+    @GetMapping("/admin/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<Delivery>>> searchDeliveries(
+            @RequestParam(required = false) DeliveryStatus status,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        List<Delivery> deliveries = deliveryService.searchDeliveries(status, city, start, end);
+        return ResponseEntity.ok(ApiResponse.success("Deliveries searched successfully", deliveries));
+    }
 }

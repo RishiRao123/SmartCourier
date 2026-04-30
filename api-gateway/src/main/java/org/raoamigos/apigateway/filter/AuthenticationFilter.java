@@ -48,8 +48,9 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     String userId = jwtUtil.extractUserId(authHeader);
                     String role = jwtUtil.extractRole(authHeader);
 
+                    // Admin route access: allow both ROLE_ADMIN and ROLE_SUPER_ADMIN
                     if (exchange.getRequest().getURI().getPath().startsWith("/admin")) {
-                        if (!"ROLE_ADMIN".equals(role)) {
+                        if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
                             System.out.println("Blocked: User " + userId + " tried to access Admin route with role " + role);
                             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied: Admin privileges required");
                         }

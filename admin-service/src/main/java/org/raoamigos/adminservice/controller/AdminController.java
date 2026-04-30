@@ -1,11 +1,13 @@
 package org.raoamigos.adminservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.raoamigos.adminservice.client.AuthClient;
 import org.raoamigos.adminservice.client.DeliveryClient;
 import org.raoamigos.adminservice.client.TrackingClient;
 import org.raoamigos.adminservice.dto.ApiResponse;
 import org.raoamigos.adminservice.dto.DeliveryDTO;
 import org.raoamigos.adminservice.dto.TrackingEventDTO;
+import org.raoamigos.adminservice.dto.UserDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,11 +20,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class AdminController {
 
     private final DeliveryClient deliveryClient;
     private final TrackingClient trackingClient;
+    private final AuthClient authClient;
+
+    // ===== Delivery Endpoints =====
 
     @GetMapping("/deliveries/{trackingNumber}")
     public ResponseEntity<ApiResponse<DeliveryDTO>> fetchDeliveryFromOtherService(@PathVariable String trackingNumber) {
@@ -34,17 +39,6 @@ public class AdminController {
     public ResponseEntity<ApiResponse<DeliveryDTO>> resolveDeliveryException(@PathVariable String trackingNumber, @RequestParam String newStatus) {
         ApiResponse<DeliveryDTO> updatedDelivery = deliveryClient.updateDeliveryStatus(trackingNumber, newStatus);
         return ResponseEntity.ok(ApiResponse.success("Exception resolved successfully", updatedDelivery.getData()));
-    }
-
-    @GetMapping("/dashboard/stats")
-    public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats() {
-        ApiResponse<Long> deliveryResponse = deliveryClient.getTotalDeliveries();
-        ApiResponse<Long> trackingResponse = trackingClient.getTotalTrackingEvents();
-        Map<String, Long> dashboardData = new HashMap<>();
-        dashboardData.put("totalActiveDeliveries", deliveryResponse.getData());
-        dashboardData.put("totalTrackingEvents", trackingResponse.getData());
-
-        return ResponseEntity.ok(ApiResponse.success("Dashboard stats aggregated successfully", dashboardData));
     }
 
     @PutMapping("/deliveries/{trackingNumber}/deliver")
@@ -70,15 +64,17 @@ public class AdminController {
         return ResponseEntity.ok(deliveryClient.getDeliveriesByDateRange(start, end));
     }
 
+    // ===== Dashboard Stats =====
 
-    @GetMapping("/dashboard/tracking/{trackingNumber}/history")
-    public ResponseEntity<ApiResponse<List<TrackingEventDTO>>> getFullTrackingHistory(@PathVariable String trackingNumber) {
-        return ResponseEntity.ok(trackingClient.getTrackingHistory(trackingNumber));
-    }
+    @GetMapping("/dashboard/stats")
+    public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats() {
+        ApiResponse<Long> deliveryResponse = deliveryClient.getTotalDeliveries();
+        ApiResponse<Long> trackingResponse = trackingClient.getTotalTrackingEvents();
+        Map<String, Long> dashboardData = new HashMap<>();
+        dashboardData.put("totalActiveDeliveries", deliveryResponse.getData());
+        dashboardData.put("totalTrackingEvents", trackingResponse.getData());
 
-    @GetMapping("/dashboard/tracking/recent")
-    public ResponseEntity<List<TrackingEventDTO>> getRecentTrackingEvents(@RequestParam(defaultValue = "7") int days) {
-        return ResponseEntity.ok(trackingClient.getRecentSystemEvents(days));
+        return ResponseEntity.ok(ApiResponse.success("Dashboard stats aggregated successfully", dashboardData));
     }
 
     @GetMapping("/dashboard/summary")
@@ -91,5 +87,44 @@ public class AdminController {
         summary.put("recentEvents", trackingClient.getRecentSystemEvents(1).size()); // Events in last 24h
 
         return ResponseEntity.ok(ApiResponse.success("Master Dashboard Summary fetched", summary));
+    }
+
+    // ===== Tracking Endpoints =====
+
+    @GetMapping("/dashboard/tracking/{trackingNumber}/history")
+    public ResponseEntity<ApiResponse<List<TrackingEventDTO>>> getFullTrackingHistory(@PathVariable String trackingNumber) {
+        return ResponseEntity.ok(trackingClient.getTrackingHistory(trackingNumber));
+    }
+
+    @GetMapping("/dashboard/tracking/recent")
+    public ResponseEntity<List<TrackingEventDTO>> getRecentTrackingEvents(@RequestParam(defaultValue = "7") int days) {
+        return ResponseEntity.ok(trackingClient.getRecentSystemEvents(days));
+    }
+
+    // ===== User Management Endpoints =====
+
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers(@RequestHeader("X-User-Role") String role) {
+        return ResponseEntity.ok(authClient.getAllUsers(role));
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable Long id, @RequestHeader("X-User-Role") String role) {
+        return ResponseEntity.ok(authClient.getUserById(id, role));
+    }
+
+    @PutMapping("/users/{id}/role")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<UserDTO>> updateUserRole(
+            @PathVariable Long id,
+            @RequestParam String newRole,
+            @RequestHeader("X-User-Role") String role) {
+        return ResponseEntity.ok(authClient.updateUserRole(id, newRole, role));
+    }
+
+    @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long id, @RequestHeader("X-User-Role") String role) {
+        return ResponseEntity.ok(authClient.deleteUser(id, role));
     }
 }

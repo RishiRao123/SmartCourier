@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,7 +35,24 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    // ---- Profile Fields ----
+
+    private String phone;
+
+    private String street;
+
+    private String city;
+
+    private String state;
+
+    private String zipCode;
+
+    private String profileImagePath;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

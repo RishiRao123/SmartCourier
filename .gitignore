@@ -24,3 +24,7 @@ Thumbs.db
 # Build / temp
 out/
 build/
+
+frontend-admin/
+frontend-user/
+node_modules/

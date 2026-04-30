@@ -6,15 +6,19 @@ import org.raoamigos.trackingservice.entity.Document;
 import org.raoamigos.trackingservice.repository.DocumentRepository;
 import org.raoamigos.trackingservice.service.DocumentService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,7 +32,7 @@ public class DocumentServiceImpl implements DocumentService {
     private String uploadDir;
 
     @Override
-    public Document uploadDocument(String trackingNumber, MultipartFile file) {
+    public Document uploadDocument(String trackingNumber, MultipartFile file, Long userId, String role) {
 
         if(file.isEmpty()) {
             throw new RuntimeException("Cannot upload an empty file");
@@ -50,11 +54,11 @@ public class DocumentServiceImpl implements DocumentService {
                     .fileName(uniqueFileName)
                     .fileType(file.getContentType())
                     .filePath(filePath.toString())
+                    .uploadedBy(userId)
+                    .uploaderRole(role)
                     .build();
 
-            log.info("USER DIR: {}", System.getProperty("user.dir"));
-            log.info("UPLOAD PATH: {}", uploadPath.toAbsolutePath());
-            log.info("Successfully uploaded file {} for tracking {}", uniqueFileName, trackingNumber);
+            log.info("Successfully uploaded file {} for tracking {} by {} ({})", uniqueFileName, trackingNumber, userId, role);
             return documnetRepository.save(document);
 
         } catch (IOException ex) {
@@ -63,5 +67,32 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    @Override
+    public List<Document> getDocumentsByTrackingNumber(String trackingNumber) {
+        return documnetRepository.findByTrackingNumber(trackingNumber);
+    }
 
+    @Override
+    public Resource getDocumentFile(Long documentId) {
+        Document document = documnetRepository.findById(documentId)
+                .orElseThrow(() -> new RuntimeException("Document not found with ID: " + documentId));
+        
+        try {
+            Path path = Paths.get(document.getFilePath());
+            Resource resource = new UrlResource(path.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read the file!");
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Document getDocumentMetadata(Long documentId) {
+        return documnetRepository.findById(documentId)
+                .orElseThrow(() -> new RuntimeException("Document not found with ID: " + documentId));
+    }
 }

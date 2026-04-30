@@ -47,7 +47,7 @@ class DocumentServiceImplTest {
         Document mockedSavedDoc = Document.builder().fileName("unique_invoice.pdf").build();
         when(documentRepository.save(any(Document.class))).thenReturn(mockedSavedDoc);
 
-        Document result = documentService.uploadDocument("TRK123", fakeFile);
+        Document result = documentService.uploadDocument("TRK123", fakeFile, 1L, "ADMIN");
 
         assertNotNull(result);
         verify(documentRepository, times(1)).save(any(Document.class));
@@ -58,7 +58,7 @@ class DocumentServiceImplTest {
         MockMultipartFile emptyFile = new MockMultipartFile("file", new byte[0]);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            documentService.uploadDocument("TRK123", emptyFile);
+            documentService.uploadDocument("TRK123", emptyFile, 1L, "ADMIN");
         });
 
         assertEquals("Cannot upload an empty file", exception.getMessage());

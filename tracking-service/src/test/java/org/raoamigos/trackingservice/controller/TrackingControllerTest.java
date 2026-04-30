@@ -82,10 +82,12 @@ class TrackingControllerTest {
                 .fileName("receipt.pdf")
                 .build();
 
-        when(documentService.uploadDocument(eq(TRACKING_NUMBER), any())).thenReturn(dummyDocument);
+        when(documentService.uploadDocument(eq(TRACKING_NUMBER), any(), eq(1L), eq("ADMIN"))).thenReturn(dummyDocument);
 
         mockMvc.perform(multipart("/tracking/{trackingNumber}/documents", TRACKING_NUMBER)
-                        .file(mockFile))
+                        .file(mockFile)
+                        .header("X-User-Id", 1L)
+                        .header("X-User-Role", "ADMIN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Document uploaded successfully"))
                 .andExpect(jsonPath("$.data.fileName").value("receipt.pdf"));
