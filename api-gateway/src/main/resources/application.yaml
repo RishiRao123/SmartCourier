@@ -3,3 +3,12 @@ spring:
     name: api-gateway
   config:
     import: optional:configserver:http://config-server:8888
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service-fixed
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/profile, /auth/users/**
+          filters:
+            - AuthenticationFilter

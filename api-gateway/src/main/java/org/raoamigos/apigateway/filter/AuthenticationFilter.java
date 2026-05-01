@@ -8,11 +8,16 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
 
     @Autowired
     private RouteValidator validator;
@@ -26,55 +31,49 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
     @Override
     public GatewayFilter apply(Config config) {
-        return ((exchange, chain) -> {
+        return (exchange, chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
 
-            if (exchange.getRequest().getMethod().equals(HttpMethod.OPTIONS)) {
+            if (request.getMethod().equals(HttpMethod.OPTIONS)) {
                 return chain.filter(exchange);
             }
 
-            if (validator.isSecured.test(exchange.getRequest())) {
-                if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+            if (validator.isSecured.test(request)) {
+                log.info("Auth Filter: Validating request for {}", request.getURI().getPath());
+
+                if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                    log.error("Auth Filter: Missing Authorization header");
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing authorization header");
                 }
 
-                String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+                String authHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
                     authHeader = authHeader.substring(7);
                 }
 
                 try {
                     jwtUtil.validateToken(authHeader);
-
                     String userId = jwtUtil.extractUserId(authHeader);
                     String role = jwtUtil.extractRole(authHeader);
 
-                    // Admin route access: allow both ROLE_ADMIN and ROLE_SUPER_ADMIN
-                    if (exchange.getRequest().getURI().getPath().startsWith("/admin")) {
-                        if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
-                            System.out.println("Blocked: User " + userId + " tried to access Admin route with role " + role);
-                            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied: Admin privileges required");
-                        }
-                    }
+                    log.info("Auth Filter: Success. Injecting X-User-Id: {} for path: {}", userId, request.getURI().getPath());
 
-                    exchange = exchange.mutate()
-                            .request(exchange.getRequest().mutate()
-                                    .header("X-User-Id", userId)
-                                    .header("X-User-Role", role)
-                                    .build())
+                    ServerHttpRequest mutatedRequest = request.mutate()
+                            .header("X-User-Id", userId)
+                            .header("X-User-Role", role)
                             .build();
 
-                } catch (ResponseStatusException e) {
-                    throw e;
+                    return chain.filter(exchange.mutate().request(mutatedRequest).build());
+
                 } catch (Exception e) {
-                    System.out.println("Invalid access...!");
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access to application");
+                    log.error("Auth Filter: Validation failed for path {}: {}", request.getURI().getPath(), e.getMessage());
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access");
                 }
             }
             return chain.filter(exchange);
-        });
+        };
     }
 
     public static class Config {
-
     }
 }

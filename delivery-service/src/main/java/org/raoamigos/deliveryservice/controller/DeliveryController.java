@@ -34,7 +34,7 @@ public class DeliveryController {
     }
 
     @GetMapping("/{trackingNumber}")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Delivery>> getDelivery(@PathVariable String trackingNumber) {
         Delivery delivery = deliveryService.getDeliveryByTrackingNumber(trackingNumber);
         return ResponseEntity.ok(ApiResponse.success("Delivery fetched successfully", delivery));
@@ -48,21 +48,21 @@ public class DeliveryController {
     }
 
     @PutMapping("/{trackingNumber}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Delivery>> updateStatus(@PathVariable String trackingNumber, @RequestParam("status") DeliveryStatus newStatus) {
         Delivery updateDelivery = deliveryService.updateDeliveryStatus(trackingNumber, newStatus);
         return ResponseEntity.ok(ApiResponse.success("Status updated successfully", updateDelivery));
     }
 
     @GetMapping("/stats/count")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Long>> getTotalDeliveries() {
         long count = deliveryRepository.count();
         return ResponseEntity.ok(ApiResponse.success("Total deliveries fetched", count));
     }
 
     @PutMapping("/{trackingNumber}/deliver")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Delivery>> markDelivered(@PathVariable String trackingNumber) {
         Delivery updatedDelivery = deliveryService.markAsDelivered(trackingNumber);
         return ResponseEntity.ok(ApiResponse.success("Package marked as delivered", updatedDelivery));
@@ -77,7 +77,7 @@ public class DeliveryController {
 
     // 2. Global Status Search (ADMIN ONLY)
     @GetMapping("/admin/status/{status}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<Delivery>>> getByStatus(@PathVariable DeliveryStatus status) {
         List<Delivery> deliveries = deliveryService.getDeliveriesByStatus(status);
         return ResponseEntity.ok(ApiResponse.success("Deliveries fetched by status", deliveries));
@@ -85,7 +85,7 @@ public class DeliveryController {
 
     // 3. Global Status Count (ADMIN ONLY)
     @GetMapping("/admin/status/{status}/count")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Long>> countByStatus(@PathVariable DeliveryStatus status) {
         long count = deliveryService.countDeliveriesByStatus(status);
         return ResponseEntity.ok(ApiResponse.success("Count fetched", count));
@@ -93,14 +93,14 @@ public class DeliveryController {
 
     // 4. Global City Search (ADMIN ONLY)
     @GetMapping("/admin/city/{city}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<Delivery>>> getByCity(@PathVariable String city) {
         List<Delivery> deliveries = deliveryService.getDeliveriesByCity(city);
         return ResponseEntity.ok(ApiResponse.success("Deliveries to " + city + " fetched", deliveries));
     }
 
     @GetMapping("/admin/report")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<Delivery>>> getByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
@@ -109,7 +109,7 @@ public class DeliveryController {
     }
 
     @GetMapping("/admin/search")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<Delivery>>> searchDeliveries(
             @RequestParam(required = false) DeliveryStatus status,
             @RequestParam(required = false) String city,

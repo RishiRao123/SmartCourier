@@ -22,4 +22,5 @@ public class UserResponseDTO {
     private String state;
     private String profileImagePath;
     private LocalDateTime createdAt;
+    private boolean active;
 }

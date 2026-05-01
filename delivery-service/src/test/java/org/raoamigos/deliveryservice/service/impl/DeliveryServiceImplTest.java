@@ -69,7 +69,7 @@ class DeliveryServiceImplTest {
 
         DeliveryRequestDTO.PackageDTO packageDetails = new DeliveryRequestDTO.PackageDTO();
         packageDetails.setWeight(2.5);
-        packageDetails.setDimensions(15.0);
+        packageDetails.setDimensions("15x15x15");
         packageDetails.setDescription("Books");
         requestDTO.setPackageDetails(packageDetails);
 

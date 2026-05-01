@@ -34,7 +34,7 @@ public class DeliveryRequestDTO {
     @Data
     public static class PackageDTO {
         private Double weight;
-        private Double dimensions;
+        private String dimensions;
         @NotBlank private String description;
     }
 }

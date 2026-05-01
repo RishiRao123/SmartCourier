@@ -127,4 +127,13 @@ public class AdminController {
     public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long id, @RequestHeader("X-User-Role") String role) {
         return ResponseEntity.ok(authClient.deleteUser(id, role));
     }
+
+    @PutMapping("/users/{id}/activate")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<UserDTO>> toggleUserActive(
+            @PathVariable Long id,
+            @RequestParam boolean active,
+            @RequestHeader("X-User-Role") String role) {
+        return ResponseEntity.ok(authClient.toggleUserActive(id, active, role));
+    }
 }

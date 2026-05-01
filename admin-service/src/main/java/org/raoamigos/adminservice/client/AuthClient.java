@@ -24,4 +24,7 @@ public interface AuthClient {
 
     @GetMapping("/auth/profile")
     ApiResponse<UserDTO> getProfile(@RequestHeader("X-User-Id") Long userId);
+
+    @PutMapping("/auth/users/{id}/activate")
+    ApiResponse<UserDTO> toggleUserActive(@PathVariable("id") Long id, @RequestParam("active") boolean active, @RequestHeader("X-User-Role") String role);
 }

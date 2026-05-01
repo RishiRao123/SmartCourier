@@ -33,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .role(Role.ROLE_CUSTOMER)
+                .active(true) // Customers are active immediately
                 .build();
 
         userRepository.save(user);
@@ -50,6 +51,11 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Block inactive users from logging in (Excluding Super Admin)
+        if (!user.isActive() && user.getRole() != Role.ROLE_SUPER_ADMIN) {
+            throw new RuntimeException("Your account is pending approval from a Super Admin. Please wait for activation.");
+        }
+
         // Include username in the JWT for frontend display
         return "token: " + jwtUtil.generateToken(user.getEmail(), user.getId(), user.getRole().name(), user.getUsername());
     }
@@ -65,10 +71,11 @@ public class AuthServiceImpl implements AuthService {
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .role(Role.ROLE_ADMIN)
+                .active(true) // Admin accounts are now active by default
                 .build();
 
         userRepository.save(user);
-        return "Admin registered successfully";
+        return "Admin registration submitted successfully. You can now log in.";
     }
 
 }

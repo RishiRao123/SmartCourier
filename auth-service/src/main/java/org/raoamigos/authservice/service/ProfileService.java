@@ -22,4 +22,6 @@ public interface ProfileService {
     UserResponseDTO updateUserRole(Long targetUserId, String newRole);
 
     void deleteUser(Long userId);
+
+    UserResponseDTO toggleUserActive(Long userId, boolean active);
 }

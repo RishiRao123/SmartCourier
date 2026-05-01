@@ -121,6 +121,20 @@ public class ProfileServiceImpl implements ProfileService {
         userRepository.delete(user);
     }
 
+    @Override
+    public UserResponseDTO toggleUserActive(Long userId, boolean active) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        if (user.getRole() == Role.ROLE_SUPER_ADMIN) {
+            throw new RuntimeException("Cannot deactivate a Super Admin account.");
+        }
+
+        user.setActive(active);
+        User saved = userRepository.save(user);
+        return mapToUserResponseDTO(saved);
+    }
+
     // ---- Mapping Helpers ----
 
     private ProfileDTO mapToProfileDTO(User user) {
@@ -135,6 +149,7 @@ public class ProfileServiceImpl implements ProfileService {
                 .state(user.getState())
                 .zipCode(user.getZipCode())
                 .profileImagePath(user.getProfileImagePath())
+                .active(user.isActive())
                 .build();
     }
 
@@ -149,6 +164,7 @@ public class ProfileServiceImpl implements ProfileService {
                 .state(user.getState())
                 .profileImagePath(user.getProfileImagePath())
                 .createdAt(user.getCreatedAt())
+                .active(user.isActive())
                 .build();
     }
 }

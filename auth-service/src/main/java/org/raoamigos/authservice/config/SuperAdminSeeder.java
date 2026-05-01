@@ -25,6 +25,7 @@ public class SuperAdminSeeder implements CommandLineRunner {
                     .email(superAdminEmail)
                     .password(passwordEncoder.encode("Ri$hi&61416@"))
                     .role(Role.ROLE_SUPER_ADMIN)
+                    .active(true)
                     .build();
 
             userRepository.save(superAdmin);

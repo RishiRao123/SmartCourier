@@ -24,28 +24,31 @@ import java.util.List;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final org.raoamigos.authservice.util.JwtUtil jwtUtil;
 
     // ===== Self-Profile Endpoints (Any authenticated user) =====
 
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<ProfileDTO>> getMyProfile(
-            @RequestHeader("X-User-Id") Long userId) {
+    public ResponseEntity<ApiResponse<ProfileDTO>> getMyProfile(jakarta.servlet.http.HttpServletRequest request) {
+        Long userId = getUserIdFromHeader(request);
         ProfileDTO profile = profileService.getProfile(userId);
         return ResponseEntity.ok(ApiResponse.success("Profile fetched successfully", profile));
     }
 
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<ProfileDTO>> updateMyProfile(
-            @RequestHeader("X-User-Id") Long userId,
+            jakarta.servlet.http.HttpServletRequest request,
             @RequestBody ProfileUpdateDTO dto) {
+        Long userId = getUserIdFromHeader(request);
         ProfileDTO updated = profileService.updateProfile(userId, dto);
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", updated));
     }
 
     @PostMapping(value = "/profile/image", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<ProfileDTO>> uploadProfileImage(
-            @RequestHeader("X-User-Id") Long userId,
+            jakarta.servlet.http.HttpServletRequest request,
             @RequestParam("file") MultipartFile file) {
+        Long userId = getUserIdFromHeader(request);
         ProfileDTO updated = profileService.uploadProfileImage(userId, file);
         return ResponseEntity.ok(ApiResponse.success("Profile image uploaded successfully", updated));
     }
@@ -70,27 +73,27 @@ public class ProfileController {
     // ===== Admin User Management Endpoints =====
 
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<List<UserResponseDTO>>> getAllUsers(
-            @RequestHeader("X-User-Role") String role) {
-        validateAdminAccess(role);
+    public ResponseEntity<ApiResponse<List<UserResponseDTO>>> getAllUsers(jakarta.servlet.http.HttpServletRequest request) {
+        validateAdminAccess(request);
         List<UserResponseDTO> users = profileService.getAllUsers();
         return ResponseEntity.ok(ApiResponse.success("All users fetched successfully", users));
     }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<ApiResponse<UserResponseDTO>> getUserById(
-            @PathVariable Long id,
-            @RequestHeader("X-User-Role") String role) {
-        validateAdminAccess(role);
+            jakarta.servlet.http.HttpServletRequest request,
+            @PathVariable Long id) {
+        validateAdminAccess(request);
         UserResponseDTO user = profileService.getUserById(id);
         return ResponseEntity.ok(ApiResponse.success("User fetched successfully", user));
     }
 
     @PutMapping("/users/{id}/role")
     public ResponseEntity<ApiResponse<UserResponseDTO>> updateUserRole(
+            jakarta.servlet.http.HttpServletRequest request,
             @PathVariable Long id,
-            @RequestParam String newRole,
-            @RequestHeader("X-User-Role") String role) {
+            @RequestParam String newRole) {
+        String role = getRoleFromHeader(request);
         if (!"ROLE_SUPER_ADMIN".equals(role)) {
             throw new RuntimeException("Only Super Admins can change user roles.");
         }
@@ -100,8 +103,9 @@ public class ProfileController {
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<ApiResponse<String>> deleteUser(
-            @PathVariable Long id,
-            @RequestHeader("X-User-Role") String role) {
+            jakarta.servlet.http.HttpServletRequest request,
+            @PathVariable Long id) {
+        String role = getRoleFromHeader(request);
         if (!"ROLE_SUPER_ADMIN".equals(role)) {
             throw new RuntimeException("Only Super Admins can delete user accounts.");
         }
@@ -109,8 +113,69 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success("User deleted successfully", "User with id " + id + " has been removed."));
     }
 
-    // ---- Helper ----
-    private void validateAdminAccess(String role) {
+    // ===== Activation Management (SUPER_ADMIN only) =====
+
+    @PutMapping("/users/{id}/activate")
+    public ResponseEntity<ApiResponse<UserResponseDTO>> toggleUserActive(
+            jakarta.servlet.http.HttpServletRequest request,
+            @PathVariable Long id,
+            @RequestParam boolean active) {
+        String role = getRoleFromHeader(request);
+        if (!"ROLE_SUPER_ADMIN".equals(role)) {
+            throw new RuntimeException("Only Super Admins can activate/deactivate accounts.");
+        }
+        UserResponseDTO updated = profileService.toggleUserActive(id, active);
+        String action = active ? "activated" : "deactivated";
+        return ResponseEntity.ok(ApiResponse.success("User " + action + " successfully", updated));
+    }
+
+    // ---- Helpers ----
+    private Long getUserIdFromHeader(jakarta.servlet.http.HttpServletRequest request) {
+        String userIdStr = request.getHeader("X-User-Id");
+        
+        // Fallback to JWT if X-User-Id is missing (e.g., direct call or Gateway config issue)
+        if (userIdStr == null || userIdStr.isBlank() || "null".equals(userIdStr)) {
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                try {
+                    Long id = jwtUtil.extractUserId(token);
+                    if (id != null) return id;
+                } catch (Exception e) {
+                    // fall through
+                }
+            }
+            throw new RuntimeException("User Identity missing in request. Header X-User-Id was null or empty.");
+        }
+
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid User Identity format: '" + userIdStr + "'. Must be a number.");
+        }
+    }
+
+    private String getRoleFromHeader(jakarta.servlet.http.HttpServletRequest request) {
+        String role = request.getHeader("X-User-Role");
+        
+        if (role == null || role.isBlank() || "null".equals(role)) {
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                try {
+                    String extractedRole = jwtUtil.extractRole(token);
+                    if (extractedRole != null) return extractedRole;
+                } catch (Exception e) {
+                    // fall through
+                }
+            }
+            throw new RuntimeException("User Role missing in request header X-User-Role.");
+        }
+        return role;
+    }
+
+    private void validateAdminAccess(jakarta.servlet.http.HttpServletRequest request) {
+        String role = getRoleFromHeader(request);
         if (!"ROLE_ADMIN".equals(role) && !"ROLE_SUPER_ADMIN".equals(role)) {
             throw new RuntimeException("Access denied. Admin privileges required.");
         }

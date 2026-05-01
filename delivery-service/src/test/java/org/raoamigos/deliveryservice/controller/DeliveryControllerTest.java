@@ -65,7 +65,7 @@ class DeliveryControllerTest {
 
         DeliveryRequestDTO.PackageDTO pkg = new DeliveryRequestDTO.PackageDTO();
         pkg.setWeight(2.5);
-        pkg.setDimensions(15.0);
+        pkg.setDimensions("15x15x15");
         pkg.setDescription("Books");
         dummyRequestDTO.setPackageDetails(pkg);
 

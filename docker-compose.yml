@@ -57,6 +57,8 @@ services:
       - mysql-db
       - service-registry
       - config-server
+    volumes:
+      - ./admin-uploads:/app/profile-uploads/
 
   delivery-service:
     build: ./delivery-service

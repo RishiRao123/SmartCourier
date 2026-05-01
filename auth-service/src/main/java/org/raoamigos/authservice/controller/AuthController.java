@@ -9,6 +9,7 @@ import org.raoamigos.authservice.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final jakarta.servlet.http.HttpServletRequest request;
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<String>> signup(@Valid @RequestBody RegisterRequestDTO dto) {
@@ -32,7 +34,14 @@ public class AuthController {
     }
 
     @PostMapping("/admin/signup")
-    public ResponseEntity<ApiResponse<String>> adminSignup(@Valid @RequestBody RegisterRequestDTO dto) {
+    public ResponseEntity<ApiResponse<String>> adminSignup(
+            @Valid @RequestBody RegisterRequestDTO dto) {
+        
+        String role = request.getHeader("X-User-Role");
+        if (!"ROLE_SUPER_ADMIN".equals(role)) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Only Super Admins can create new admin accounts"));
+        }
+        
         String message = authService.registerAdmin(dto);
         return ResponseEntity.ok(ApiResponse.success("Admin registered successfully", message));
     }

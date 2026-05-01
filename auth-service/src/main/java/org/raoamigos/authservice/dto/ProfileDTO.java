@@ -21,4 +21,5 @@ public class ProfileDTO {
     private String state;
     private String zipCode;
     private String profileImagePath;
+    private boolean active;
 }

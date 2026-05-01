@@ -49,6 +49,10 @@ public class User {
 
     private String profileImagePath;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

@@ -28,21 +28,21 @@ public class TrackingController {
     private final TrackingEventRepository trackingEventRepository;
 
     @GetMapping("/{trackingNumber}")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<TrackingEvent>>> getTrackingHistory(@PathVariable String trackingNumber) {
         List<TrackingEvent> history = trackingService.getTrackingHistory(trackingNumber);
         return ResponseEntity.ok(ApiResponse.success("Tracking history fetched successfully", history));
     }
 
     @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<TrackingEvent>>> getAllTrackings() {
         List<TrackingEvent> trackings = trackingService.getAllTrackings();
         return ResponseEntity.ok(ApiResponse.success("Trackings fetched successfully", trackings));
     }
 
     @PostMapping(value = "/{trackingNumber}/documents", consumes = "multipart/form-data")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Document>> uploadDocument(
             @PathVariable String trackingNumber,
             @RequestParam("file") MultipartFile file,
@@ -53,14 +53,14 @@ public class TrackingController {
     }
 
     @GetMapping("/{trackingNumber}/documents")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<Document>>> getDocuments(@PathVariable String trackingNumber) {
         List<Document> documents = documentService.getDocumentsByTrackingNumber(trackingNumber);
         return ResponseEntity.ok(ApiResponse.success("Documents fetched successfully", documents));
     }
 
     @GetMapping("/documents/{id}/download")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Resource> downloadDocument(@PathVariable Long id) {
         Resource file = documentService.getDocumentFile(id);
         Document metadata = documentService.getDocumentMetadata(id);
@@ -72,32 +72,32 @@ public class TrackingController {
     }
 
     @GetMapping("admin/stats/count")
-    @PreAuthorize("hasRole('ADMIN')") // Only Admins can see stats
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')") // Only Admins can see stats
     public ResponseEntity<ApiResponse<Long>> getTotalTrackingEvents() {
         long count = trackingEventRepository.count();
         return ResponseEntity.ok(ApiResponse.success("Total tracking events fetched", count));
     }
 
     @GetMapping("/{trackingNumber}/latest")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<TrackingEvent> getLatestStatus(@PathVariable String trackingNumber) {
         return ResponseEntity.ok(trackingService.getLatestEvent(trackingNumber));
     }
 
     @GetMapping("/{trackingNumber}/count")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Long> getUpdateCount(@PathVariable String trackingNumber) {
         return ResponseEntity.ok(trackingService.getUpdateCount(trackingNumber));
     }
 
     @GetMapping("/admin/status/{status}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<List<TrackingEvent>> getEventsByStatus(@PathVariable String status) {
         return ResponseEntity.ok(trackingService.getEventsByStatus(status));
     }
 
     @GetMapping("/admin/recent")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<List<TrackingEvent>> getRecentEvents(@RequestParam(defaultValue = "7") int days) {
         return ResponseEntity.ok(trackingService.getRecentSystemEvents(days));
     }

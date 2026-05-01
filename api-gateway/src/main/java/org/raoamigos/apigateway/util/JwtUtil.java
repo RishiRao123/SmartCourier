@@ -26,7 +26,8 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
 
-        return String.valueOf(claims.get("userId"));
+        Object userId = claims.get("userId");
+        return userId != null ? String.valueOf(userId) : null;
     }
 
     public String extractRole(String token) {
