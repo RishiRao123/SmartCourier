@@ -10,4 +10,7 @@ public class DeliveryDTO {
     private String senderName;
     private String receiverName;
     private String status;
+    private Double price;
+    private String paymentMethod;
+    private String paymentStatus;
 }

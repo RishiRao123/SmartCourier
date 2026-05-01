@@ -30,20 +30,30 @@ public class AdminController {
     // ===== Delivery Endpoints =====
 
     @GetMapping("/deliveries/{trackingNumber}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<DeliveryDTO>> fetchDeliveryFromOtherService(@PathVariable String trackingNumber) {
         ApiResponse<DeliveryDTO> response = deliveryClient.getDeliveryByTrackingNumber(trackingNumber);
         return ResponseEntity.ok(ApiResponse.success("Successfully fetched cross-service data", response.getData()));
     }
 
     @PutMapping("/deliveries/{trackingNumber}/resolve")
-    public ResponseEntity<ApiResponse<DeliveryDTO>> resolveDeliveryException(@PathVariable String trackingNumber, @RequestParam String newStatus) {
-        ApiResponse<DeliveryDTO> updatedDelivery = deliveryClient.updateDeliveryStatus(trackingNumber, newStatus);
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<DeliveryDTO>> resolveDeliveryException(
+            @PathVariable String trackingNumber, 
+            @RequestParam String newStatus,
+            @RequestParam(required = false) String proofImagePath,
+            @RequestParam(required = false) String deliveryNote) {
+        ApiResponse<DeliveryDTO> updatedDelivery = deliveryClient.updateDeliveryStatus(trackingNumber, newStatus, proofImagePath, deliveryNote);
         return ResponseEntity.ok(ApiResponse.success("Exception resolved successfully", updatedDelivery.getData()));
     }
 
     @PutMapping("/deliveries/{trackingNumber}/deliver")
-    public ResponseEntity<ApiResponse<DeliveryDTO>> markDeliveryComplete(@PathVariable String trackingNumber) {
-        ApiResponse<DeliveryDTO> response = deliveryClient.markDelivered(trackingNumber);
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<DeliveryDTO>> markDeliveryComplete(
+            @PathVariable String trackingNumber,
+            @RequestParam String proofImagePath,
+            @RequestParam(required = false) String deliveryNote) {
+        ApiResponse<DeliveryDTO> response = deliveryClient.markDelivered(trackingNumber, proofImagePath, deliveryNote);
         return ResponseEntity.ok(ApiResponse.success("Admin successfully finalized delivery", response.getData()));
     }
 

@@ -65,9 +65,9 @@ class DeliveryControllerTest {
 
         DeliveryRequestDTO.PackageDTO pkg = new DeliveryRequestDTO.PackageDTO();
         pkg.setWeight(2.5);
-        pkg.setDimensions("15x15x15");
         pkg.setDescription("Books");
         dummyRequestDTO.setPackageDetails(pkg);
+        dummyRequestDTO.setPaymentMethod("PAY_ON_DELIVERY");
 
         dummyDelivery = Delivery.builder()
                 .customerId(CUSTOMER_ID)
@@ -120,7 +120,7 @@ class DeliveryControllerTest {
     void updateStatus_ShouldReturn200AndUpdatedDelivery() throws Exception {
         dummyDelivery.setStatus(DeliveryStatus.IN_TRANSIT);
 
-        when(deliveryService.updateDeliveryStatus("TRK12345678", DeliveryStatus.IN_TRANSIT))
+        when(deliveryService.updateDeliveryStatus(eq("TRK12345678"), eq(DeliveryStatus.IN_TRANSIT), any(), any()))
                 .thenReturn(dummyDelivery);
 
         mockMvc.perform(put("/deliveries/{trackingNumber}/status", "TRK12345678")

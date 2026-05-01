@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.raoamigos.deliveryservice.dto.ApiResponse;
 import org.raoamigos.deliveryservice.dto.DeliveryRequestDTO;
+import org.raoamigos.deliveryservice.dto.InvoiceResponseDTO;
 import org.raoamigos.deliveryservice.entity.Delivery;
 import org.raoamigos.deliveryservice.entity.DeliveryStatus;
 import org.raoamigos.deliveryservice.repository.DeliveryRepository;
@@ -40,6 +41,13 @@ public class DeliveryController {
         return ResponseEntity.ok(ApiResponse.success("Delivery fetched successfully", delivery));
     }
 
+    @GetMapping("/{trackingNumber}/invoice")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<InvoiceResponseDTO>> getInvoice(@PathVariable String trackingNumber) {
+        InvoiceResponseDTO invoice = deliveryService.getInvoiceByTrackingNumber(trackingNumber);
+        return ResponseEntity.ok(ApiResponse.success("Invoice fetched successfully", invoice));
+    }
+
     @GetMapping("/my")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<ApiResponse<List<Delivery>>> getMyDeliveries(@RequestHeader("X-User-Id") Long customerId) {
@@ -49,8 +57,12 @@ public class DeliveryController {
 
     @PutMapping("/{trackingNumber}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<ApiResponse<Delivery>> updateStatus(@PathVariable String trackingNumber, @RequestParam("status") DeliveryStatus newStatus) {
-        Delivery updateDelivery = deliveryService.updateDeliveryStatus(trackingNumber, newStatus);
+    public ResponseEntity<ApiResponse<Delivery>> updateStatus(
+            @PathVariable String trackingNumber, 
+            @RequestParam("status") DeliveryStatus newStatus,
+            @RequestParam(value = "proofImagePath", required = false) String proofImagePath,
+            @RequestParam(value = "deliveryNote", required = false) String deliveryNote) {
+        Delivery updateDelivery = deliveryService.updateDeliveryStatus(trackingNumber, newStatus, proofImagePath, deliveryNote);
         return ResponseEntity.ok(ApiResponse.success("Status updated successfully", updateDelivery));
     }
 
@@ -63,8 +75,11 @@ public class DeliveryController {
 
     @PutMapping("/{trackingNumber}/deliver")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<ApiResponse<Delivery>> markDelivered(@PathVariable String trackingNumber) {
-        Delivery updatedDelivery = deliveryService.markAsDelivered(trackingNumber);
+    public ResponseEntity<ApiResponse<Delivery>> markDelivered(
+            @PathVariable String trackingNumber,
+            @RequestParam(value = "proofImagePath", required = true) String proofImagePath,
+            @RequestParam(value = "deliveryNote", required = false) String deliveryNote) {
+        Delivery updatedDelivery = deliveryService.markAsDelivered(trackingNumber, proofImagePath, deliveryNote);
         return ResponseEntity.ok(ApiResponse.success("Package marked as delivered", updatedDelivery));
     }
 
@@ -75,7 +90,13 @@ public class DeliveryController {
         return ResponseEntity.ok(ApiResponse.success("Active deliveries fetched", activeDeliveries));
     }
 
-    // 2. Global Status Search (ADMIN ONLY)
+    @GetMapping("/my/delivered")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<ApiResponse<List<Delivery>>> getMyDeliveredDeliveries(@RequestHeader("X-User-Id") Long customerId) {
+        List<Delivery> deliveredDeliveries = deliveryService.getMyDeliveredDeliveries(customerId);
+        return ResponseEntity.ok(ApiResponse.success("Delivered deliveries fetched", deliveredDeliveries));
+    }
+
     @GetMapping("/admin/status/{status}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<Delivery>>> getByStatus(@PathVariable DeliveryStatus status) {
@@ -83,7 +104,6 @@ public class DeliveryController {
         return ResponseEntity.ok(ApiResponse.success("Deliveries fetched by status", deliveries));
     }
 
-    // 3. Global Status Count (ADMIN ONLY)
     @GetMapping("/admin/status/{status}/count")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Long>> countByStatus(@PathVariable DeliveryStatus status) {
@@ -91,7 +111,6 @@ public class DeliveryController {
         return ResponseEntity.ok(ApiResponse.success("Count fetched", count));
     }
 
-    // 4. Global City Search (ADMIN ONLY)
     @GetMapping("/admin/city/{city}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<Delivery>>> getByCity(@PathVariable String city) {
@@ -118,4 +137,4 @@ public class DeliveryController {
         List<Delivery> deliveries = deliveryService.searchDeliveries(status, city, start, end);
         return ResponseEntity.ok(ApiResponse.success("Deliveries searched successfully", deliveries));
     }
-}
+}

@@ -14,6 +14,7 @@ public class RouteValidator {
             "/auth/signup",
             "/auth/login",
             "/auth/profile/image",
+            "/tracking/documents/file/",
             "/eureka"
     );
 

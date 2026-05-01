@@ -33,6 +33,9 @@ public class TrackingEvent {
     @Column(length = 500)
     private String message;
 
+    private String proofImagePath;
+    private String deliveryNote;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime timestamp;

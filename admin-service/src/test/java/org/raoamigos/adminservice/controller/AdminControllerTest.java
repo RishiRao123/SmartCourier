@@ -17,8 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -74,7 +73,7 @@ class AdminControllerTest {
         dummyDelivery.setStatus("RESOLVED");
         ApiResponse<DeliveryDTO> mockResponse = ApiResponse.success("Updated", dummyDelivery);
 
-        when(deliveryClient.updateDeliveryStatus(eq(TRACKING_NUMBER), eq("RESOLVED"))).thenReturn(mockResponse);
+        when(deliveryClient.updateDeliveryStatus(eq(TRACKING_NUMBER), eq("RESOLVED"), any(), any())).thenReturn(mockResponse);
 
         mockMvc.perform(put("/admin/deliveries/{trackingNumber}/resolve", TRACKING_NUMBER)
                         .param("newStatus", "RESOLVED")

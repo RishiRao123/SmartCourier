@@ -7,11 +7,9 @@ import org.raoamigos.authservice.dto.LoginRequestDTO;
 import org.raoamigos.authservice.dto.RegisterRequestDTO;
 import org.raoamigos.authservice.service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.raoamigos.authservice.entity.User;
+import org.raoamigos.authservice.repository.UserRepository;
 
 @RestController
 @RequestMapping("/auth")
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
     private final jakarta.servlet.http.HttpServletRequest request;
 
     @PostMapping("/signup")
@@ -44,6 +43,23 @@ public class AuthController {
         
         String message = authService.registerAdmin(dto);
         return ResponseEntity.ok(ApiResponse.success("Admin registered successfully", message));
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<User>> getProfile(@RequestHeader("X-User-Email") String email) {
+        User user = authService.getUserProfile(email);
+        return ResponseEntity.ok(ApiResponse.success("Profile fetched", user));
     }
 
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<User>> updateProfile(
+            @RequestHeader("X-User-Email") String email,
+            @RequestBody User updatedUser) {
+        User user = authService.getUserProfile(email);
+        user.setPhone(updatedUser.getPhone());
+        user.setStreet(updatedUser.getStreet());
+        user.setCity(updatedUser.getCity());
+        user.setState(updatedUser.getState());
+        user.setZipCode(updatedUser.getZipCode());
+        userRepository.save(user);
+        return ResponseEntity.ok(ApiResponse.success("Profile updated", user));
+    }
 }

@@ -31,6 +31,13 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    private String phone;
+    private String street;
+    private String city;
+    private String state;
+    private String zipCode;
+    private String profileImagePath;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;

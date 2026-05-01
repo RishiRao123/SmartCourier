@@ -42,7 +42,7 @@ public class TrackingController {
     }
 
     @PostMapping(value = "/{trackingNumber}/documents", consumes = "multipart/form-data")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Document>> uploadDocument(
             @PathVariable String trackingNumber,
             @RequestParam("file") MultipartFile file,
@@ -67,6 +67,16 @@ public class TrackingController {
         
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + metadata.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(metadata.getFileType()))
+                .body(file);
+    }
+
+    @GetMapping("/documents/file/{id}")
+    public ResponseEntity<Resource> serveDocument(@PathVariable Long id) {
+        Resource file = documentService.getDocumentFile(id);
+        Document metadata = documentService.getDocumentMetadata(id);
+        
+        return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(metadata.getFileType()))
                 .body(file);
     }

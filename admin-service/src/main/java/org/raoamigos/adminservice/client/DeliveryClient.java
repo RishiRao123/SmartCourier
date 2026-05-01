@@ -19,13 +19,18 @@ public interface DeliveryClient {
     @PutMapping("/deliveries/{trackingNumber}/status")
     ApiResponse<DeliveryDTO> updateDeliveryStatus(
             @PathVariable("trackingNumber") String trackingNumber,
-            @RequestParam("status") String status);
+            @RequestParam("status") String status,
+            @RequestParam(value = "proofImagePath", required = false) String proofImagePath,
+            @RequestParam(value = "deliveryNote", required = false) String deliveryNote);
 
     @GetMapping("/deliveries/stats/count")
     ApiResponse<Long> getTotalDeliveries();
 
     @PutMapping("/deliveries/{trackingNumber}/deliver")
-    ApiResponse<DeliveryDTO> markDelivered(@PathVariable("trackingNumber") String trackingNumber);
+    ApiResponse<DeliveryDTO> markDelivered(
+            @PathVariable("trackingNumber") String trackingNumber,
+            @RequestParam(value = "proofImagePath", required = true) String proofImagePath,
+            @RequestParam(value = "deliveryNote", required = false) String deliveryNote);
 
     @GetMapping("/deliveries/admin/status/{status}")
     ApiResponse<List<DeliveryDTO>> getDeliveriesByStatus(@PathVariable("status") String status);

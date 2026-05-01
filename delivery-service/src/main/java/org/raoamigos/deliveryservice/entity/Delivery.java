@@ -40,6 +40,9 @@ public class Delivery {
 
     private String receiverName;
 
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "street", column = @Column(name = "receiver_street")),
@@ -51,6 +54,14 @@ public class Delivery {
 
     @Embedded
     private PackageDetails packageDetails;
+
+    private Double price;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status;

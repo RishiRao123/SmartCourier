@@ -10,7 +10,10 @@ import org.raoamigos.deliveryservice.dto.DeliveryRequestDTO;
 import org.raoamigos.deliveryservice.dto.DeliveryUpdateEvent;
 import org.raoamigos.deliveryservice.entity.Delivery;
 import org.raoamigos.deliveryservice.entity.DeliveryStatus;
+import org.raoamigos.deliveryservice.entity.Invoice;
 import org.raoamigos.deliveryservice.repository.DeliveryRepository;
+import org.raoamigos.deliveryservice.repository.InvoiceRepository;
+import org.raoamigos.deliveryservice.service.PricingService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.time.LocalDateTime;
@@ -27,6 +30,12 @@ class DeliveryServiceImplTest {
 
     @Mock
     private DeliveryRepository deliveryRepository;
+
+    @Mock
+    private InvoiceRepository invoiceRepository;
+
+    @Mock
+    private PricingService pricingService;
 
     @Mock
     private RabbitTemplate rabbitTemplate;
@@ -52,6 +61,7 @@ class DeliveryServiceImplTest {
         DeliveryRequestDTO requestDTO = new DeliveryRequestDTO();
         requestDTO.setSenderName("John Doe");
         requestDTO.setReceiverName("Jane Doe");
+        requestDTO.setPaymentMethod("PAY_ON_DELIVERY");
 
         DeliveryRequestDTO.AddressDTO senderAddress = new DeliveryRequestDTO.AddressDTO();
         senderAddress.setStreet("123 Sender St");
@@ -69,11 +79,12 @@ class DeliveryServiceImplTest {
 
         DeliveryRequestDTO.PackageDTO packageDetails = new DeliveryRequestDTO.PackageDTO();
         packageDetails.setWeight(2.5);
-        packageDetails.setDimensions("15x15x15");
         packageDetails.setDescription("Books");
         requestDTO.setPackageDetails(packageDetails);
 
+        when(pricingService.calculatePrice(2.5)).thenReturn(99.0);
         when(deliveryRepository.save(any(Delivery.class))).thenReturn(dummyDelivery);
+        when(invoiceRepository.save(any(Invoice.class))).thenReturn(Invoice.builder().build());
 
         Delivery result = deliveryService.createDelivery(requestDTO, CUSTOMER_ID);
 
@@ -82,6 +93,7 @@ class DeliveryServiceImplTest {
         assertEquals(TRACKING_NUMBER, result.getTrackingNumber());
 
         verify(deliveryRepository, times(1)).save(any(Delivery.class));
+        verify(invoiceRepository, times(1)).save(any(Invoice.class));
         verify(rabbitTemplate, times(1)).convertAndSend(
                 eq("delivery.exchange"),
                 eq("delivery.routing.key"),
@@ -107,7 +119,7 @@ class DeliveryServiceImplTest {
         when(deliveryRepository.findByTrackingNumber(TRACKING_NUMBER)).thenReturn(Optional.of(dummyDelivery));
         when(deliveryRepository.save(any(Delivery.class))).thenReturn(dummyDelivery);
 
-        Delivery result = deliveryService.updateDeliveryStatus(TRACKING_NUMBER, DeliveryStatus.IN_TRANSIT);
+        Delivery result = deliveryService.updateDeliveryStatus(TRACKING_NUMBER, DeliveryStatus.IN_TRANSIT, null, null);
 
         assertEquals(DeliveryStatus.IN_TRANSIT, result.getStatus());
 
@@ -125,7 +137,7 @@ class DeliveryServiceImplTest {
         when(deliveryRepository.findByTrackingNumber(TRACKING_NUMBER)).thenReturn(Optional.of(dummyDelivery));
         when(deliveryRepository.save(any(Delivery.class))).thenReturn(dummyDelivery);
 
-        Delivery result = deliveryService.markAsDelivered(TRACKING_NUMBER);
+        Delivery result = deliveryService.markAsDelivered(TRACKING_NUMBER, null, null);
 
         assertEquals(DeliveryStatus.DELIVERED, result.getStatus());
 

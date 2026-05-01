@@ -13,4 +13,6 @@ public class DeliveryUpdateEvent {
     private String trackingNumber;
     private String status;
     private String message;
+    private String proofImagePath;
+    private String deliveryNote;
 }

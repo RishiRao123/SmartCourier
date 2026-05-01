@@ -32,6 +32,11 @@ public class AuthServiceImpl implements AuthService {
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
+                .phone(dto.getPhone())
+                .street(dto.getStreet())
+                .city(dto.getCity())
+                .state(dto.getState())
+                .zipCode(dto.getZipCode())
                 .role(Role.ROLE_CUSTOMER)
                 .active(true) // Customers are active immediately
                 .build();
@@ -76,6 +81,9 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
         return "Admin registration submitted successfully. You can now log in.";
+    @Override
+    public User getUserProfile(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
-
 }

@@ -26,6 +26,8 @@ public class TrackingEventListenerImpl implements TrackingEventListener {
                 .status(event.getStatus())
                 .location(HubLocation.SYSTEM_GENERATED)
                 .message(event.getMessage())
+                .proofImagePath(event.getProofImagePath())
+                .deliveryNote(event.getDeliveryNote())
                 .build();
 
 

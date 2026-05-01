@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class PackageDetails {
 
     private Double weight;
-    private String dimensions;
     private String description;
 
 }

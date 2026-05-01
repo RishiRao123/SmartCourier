@@ -15,6 +15,7 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
     List<Delivery> findByCustomerId(Long customerId);
 
     List<Delivery> findByCustomerIdAndStatusNot(Long customerId, DeliveryStatus status);
+    List<Delivery> findByCustomerIdAndStatus(Long customerId, DeliveryStatus status);
 
     List<Delivery> findByStatus(DeliveryStatus status);
 
