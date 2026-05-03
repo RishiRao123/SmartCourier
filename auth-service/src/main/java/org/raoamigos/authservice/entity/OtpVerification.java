@@ -29,6 +29,11 @@ public class OtpVerification {
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private OtpPurpose purpose = OtpPurpose.SIGNUP_OTP;
+
     @Builder.Default
     private boolean verified = false;
 }

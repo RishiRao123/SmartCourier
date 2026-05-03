@@ -14,4 +14,6 @@ public interface EmailService {
     void sendDeliveryBookedEmail(DeliveryBookedEvent event);
 
     void sendDeliveryDeliveredEmail(DeliveryDeliveredEvent event);
+
+    void sendPasswordResetEmail(PasswordResetEvent event);
 }

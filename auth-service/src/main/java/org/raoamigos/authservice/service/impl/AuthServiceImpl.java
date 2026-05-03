@@ -14,8 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.raoamigos.authservice.entity.OtpVerification;
+import org.raoamigos.authservice.entity.OtpPurpose;
 import org.raoamigos.authservice.repository.OtpVerificationRepository;
 import org.raoamigos.authservice.dto.OtpEvent;
+import org.raoamigos.authservice.dto.PasswordResetEvent;
 import org.raoamigos.authservice.config.RabbitMQConfig;
 
 import java.time.LocalDateTime;
@@ -66,14 +68,15 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("DEBUG - GENERATED OTP FOR " + user.getEmail() + " IS: " + otp);
         System.out.println("=============================================\n");
         
-        // Remove existing OTP if any
-        otpVerificationRepository.deleteByEmail(user.getEmail());
+        // Remove existing signup OTP if any
+        otpVerificationRepository.deleteByEmailAndPurpose(user.getEmail(), OtpPurpose.SIGNUP_OTP);
 
-        // Save OTP
+        // Save OTP with SIGNUP_OTP purpose
         OtpVerification otpVerification = OtpVerification.builder()
                 .email(user.getEmail())
                 .otp(otp)
                 .expiresAt(LocalDateTime.now().plusMinutes(10))
+                .purpose(OtpPurpose.SIGNUP_OTP)
                 .build();
         otpVerificationRepository.save(otpVerification);
 
@@ -150,7 +153,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String verifyOtp(String email, String otp) {
-        OtpVerification otpVerification = otpVerificationRepository.findByEmailAndOtp(email, otp)
+        OtpVerification otpVerification = otpVerificationRepository.findByEmailAndOtpAndPurpose(email, otp, OtpPurpose.SIGNUP_OTP)
                 .orElseThrow(() -> new RuntimeException("Invalid OTP"));
 
         if (otpVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -181,7 +184,7 @@ public class AuthServiceImpl implements AuthService {
 
         String otp = generateOtp();
         
-        OtpVerification existingOtp = otpVerificationRepository.findByEmail(email).orElse(null);
+        OtpVerification existingOtp = otpVerificationRepository.findByEmailAndPurpose(email, OtpPurpose.SIGNUP_OTP).orElse(null);
         if (existingOtp != null) {
             existingOtp.setOtp(otp);
             existingOtp.setExpiresAt(LocalDateTime.now().plusMinutes(10));
@@ -191,6 +194,7 @@ public class AuthServiceImpl implements AuthService {
                     .email(user.getEmail())
                     .otp(otp)
                     .expiresAt(LocalDateTime.now().plusMinutes(10))
+                    .purpose(OtpPurpose.SIGNUP_OTP)
                     .build();
             otpVerificationRepository.save(newOtp);
         }
@@ -199,5 +203,80 @@ public class AuthServiceImpl implements AuthService {
         rabbitTemplate.convertAndSend(RabbitMQConfig.NOTIFICATION_EXCHANGE, RabbitMQConfig.OTP_ROUTING_KEY, otpEvent);
 
         return "OTP resent successfully";
+    }
+
+    // ===== Password Management =====
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public String forgotPassword(String email) {
+        // Always return success to prevent email enumeration
+        java.util.Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return "If this email is registered, you will receive a password reset code.";
+        }
+
+        String otp = generateOtp();
+        System.out.println("\n=============================================");
+        System.out.println("DEBUG - PASSWORD RESET OTP FOR " + email + " IS: " + otp);
+        System.out.println("=============================================\n");
+
+        // Remove existing password reset OTP if any
+        otpVerificationRepository.deleteByEmailAndPurpose(email, OtpPurpose.PASSWORD_RESET);
+
+        // Save new OTP with PASSWORD_RESET purpose
+        OtpVerification otpVerification = OtpVerification.builder()
+                .email(email)
+                .otp(otp)
+                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .purpose(OtpPurpose.PASSWORD_RESET)
+                .build();
+        otpVerificationRepository.save(otpVerification);
+
+        // Publish to RabbitMQ for email delivery
+        PasswordResetEvent event = new PasswordResetEvent(email, otp);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.NOTIFICATION_EXCHANGE, RabbitMQConfig.PASSWORD_RESET_ROUTING_KEY, event);
+
+        return "If this email is registered, you will receive a password reset code.";
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public String resetPassword(String email, String otp, String newPassword) {
+        OtpVerification otpVerification = otpVerificationRepository
+                .findByEmailAndOtpAndPurpose(email, otp, OtpPurpose.PASSWORD_RESET)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired reset code."));
+
+        if (otpVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset code has expired. Please request a new one.");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Mark as used and clean up
+        otpVerification.setVerified(true);
+        otpVerificationRepository.save(otpVerification);
+        otpVerificationRepository.deleteByEmailAndPurpose(email, OtpPurpose.PASSWORD_RESET);
+
+        return "Password reset successfully. You can now log in with your new password.";
+    }
+
+    @Override
+    public String changePassword(Long userId, String oldPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return "Password changed successfully.";
     }
 }

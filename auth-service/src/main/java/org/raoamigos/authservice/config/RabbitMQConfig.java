@@ -12,6 +12,7 @@ public class RabbitMQConfig {
     public static final String NOTIFICATION_EXCHANGE = "notification.exchange";
     public static final String OTP_ROUTING_KEY = "notification.otp";
     public static final String ADMIN_CREDENTIALS_ROUTING_KEY = "notification.admin.credentials";
+    public static final String PASSWORD_RESET_ROUTING_KEY = "notification.password.reset";
 
     @Bean
     public TopicExchange notificationExchange() {

@@ -15,4 +15,9 @@ public interface AuthService {
     String resendOtp(String email);
 
     User getUserProfile(String email);
+
+    // Password Management
+    String forgotPassword(String email);
+    String resetPassword(String email, String otp, String newPassword);
+    String changePassword(Long userId, String oldPassword, String newPassword);
 }

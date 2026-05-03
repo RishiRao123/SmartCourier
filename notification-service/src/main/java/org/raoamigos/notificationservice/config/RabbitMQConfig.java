@@ -19,12 +19,14 @@ public class RabbitMQConfig {
     public static final String ADMIN_CREDENTIALS_QUEUE = "notification.admin-credentials.queue";
     public static final String DELIVERY_BOOKED_QUEUE = "notification.delivery-booked.queue";
     public static final String DELIVERY_DELIVERED_QUEUE = "notification.delivery-delivered.queue";
+    public static final String PASSWORD_RESET_QUEUE = "notification.password-reset.queue";
 
     // ===== Routing Keys =====
     public static final String OTP_ROUTING_KEY = "notification.otp";
     public static final String ADMIN_CREDENTIALS_ROUTING_KEY = "notification.admin.credentials";
     public static final String DELIVERY_BOOKED_ROUTING_KEY = "notification.delivery.booked";
     public static final String DELIVERY_DELIVERED_ROUTING_KEY = "notification.delivery.delivered";
+    public static final String PASSWORD_RESET_ROUTING_KEY = "notification.password.reset";
 
     // --- Exchange ---
     @Bean
@@ -72,6 +74,16 @@ public class RabbitMQConfig {
     @Bean
     public Binding deliveryDeliveredBinding(Queue deliveryDeliveredQueue, TopicExchange notificationExchange) {
         return BindingBuilder.bind(deliveryDeliveredQueue).to(notificationExchange).with(DELIVERY_DELIVERED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue passwordResetQueue() {
+        return QueueBuilder.durable(PASSWORD_RESET_QUEUE).build();
+    }
+
+    @Bean
+    public Binding passwordResetBinding(Queue passwordResetQueue, TopicExchange notificationExchange) {
+        return BindingBuilder.bind(passwordResetQueue).to(notificationExchange).with(PASSWORD_RESET_ROUTING_KEY);
     }
 
     // --- JSON Message Converter ---

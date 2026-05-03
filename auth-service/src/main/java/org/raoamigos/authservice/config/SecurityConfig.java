@@ -28,7 +28,7 @@ public class SecurityConfig {
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/signup", "/auth/login", "/auth/verify-otp", "/auth/resend-otp", "/error", "/auth/admin/signup").permitAll()
+                        .requestMatchers("/auth/signup", "/auth/login", "/auth/verify-otp", "/auth/resend-otp", "/auth/forgot-password", "/auth/reset-password", "/error", "/auth/admin/signup").permitAll()
                         .requestMatchers("/auth/profile/**", "/auth/users/**", "/auth-admin/**").permitAll() // Secured via X-User-Id/X-User-Role headers from Gateway
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()

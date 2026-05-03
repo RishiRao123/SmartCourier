@@ -13,6 +13,8 @@ public class RouteValidator {
     public static final List<String> openApiEndpoints = List.of(
             "/auth/signup",
             "/auth/login",
+            "/auth/forgot-password",
+            "/auth/reset-password",
             "/auth/profile/image",
             "/tracking/documents/file/",
             "/eureka"
