@@ -32,34 +32,17 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", token));
     }
 
-    @PostMapping("/admin/signup")
-    public ResponseEntity<ApiResponse<String>> adminSignup(
-            @Valid @RequestBody RegisterRequestDTO dto) {
-        
-        String role = request.getHeader("X-User-Role");
-        if (!"ROLE_SUPER_ADMIN".equals(role)) {
-            return ResponseEntity.status(403).body(ApiResponse.error("Only Super Admins can create new admin accounts"));
-        }
-        
-        String message = authService.registerAdmin(dto);
-        return ResponseEntity.ok(ApiResponse.success("Admin registered successfully", message));
-    @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<User>> getProfile(@RequestHeader("X-User-Email") String email) {
-        User user = authService.getUserProfile(email);
-        return ResponseEntity.ok(ApiResponse.success("Profile fetched", user));
+
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<ApiResponse<String>> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+        String message = authService.verifyOtp(email, otp);
+        return ResponseEntity.ok(ApiResponse.success("Success", message));
     }
 
-    @PutMapping("/profile")
-    public ResponseEntity<ApiResponse<User>> updateProfile(
-            @RequestHeader("X-User-Email") String email,
-            @RequestBody User updatedUser) {
-        User user = authService.getUserProfile(email);
-        user.setPhone(updatedUser.getPhone());
-        user.setStreet(updatedUser.getStreet());
-        user.setCity(updatedUser.getCity());
-        user.setState(updatedUser.getState());
-        user.setZipCode(updatedUser.getZipCode());
-        userRepository.save(user);
-        return ResponseEntity.ok(ApiResponse.success("Profile updated", user));
+    @PostMapping("/resend-otp")
+    public ResponseEntity<ApiResponse<String>> resendOtp(@RequestParam String email) {
+        String message = authService.resendOtp(email);
+        return ResponseEntity.ok(ApiResponse.success("Success", message));
     }
 }

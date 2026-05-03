@@ -86,7 +86,7 @@ class DeliveryServiceImplTest {
         when(deliveryRepository.save(any(Delivery.class))).thenReturn(dummyDelivery);
         when(invoiceRepository.save(any(Invoice.class))).thenReturn(Invoice.builder().build());
 
-        Delivery result = deliveryService.createDelivery(requestDTO, CUSTOMER_ID);
+        Delivery result = deliveryService.createDelivery(requestDTO, CUSTOMER_ID, "test@example.com");
 
         assertNotNull(result);
         assertEquals(DeliveryStatus.BOOKED, result.getStatus());

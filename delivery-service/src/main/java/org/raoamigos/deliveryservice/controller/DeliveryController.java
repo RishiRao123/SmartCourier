@@ -29,8 +29,9 @@ public class DeliveryController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<ApiResponse<Delivery>> createDelivery(
             @Valid @RequestBody DeliveryRequestDTO requestDTO,
-           @RequestHeader("X-User-Id") Long customerId) {
-        Delivery newDelivery = deliveryService.createDelivery(requestDTO, customerId);
+           @RequestHeader("X-User-Id") Long customerId,
+           @RequestHeader("X-User-Email") String customerEmail) {
+        Delivery newDelivery = deliveryService.createDelivery(requestDTO, customerId, customerEmail);
         return ResponseEntity.ok(ApiResponse.success("Delivery created successfully", newDelivery));
     }
 

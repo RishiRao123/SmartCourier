@@ -28,7 +28,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional
-    public Delivery createDelivery(DeliveryRequestDTO dto, Long customerId) {
+    public Delivery createDelivery(DeliveryRequestDTO dto, Long customerId, String customerEmail) {
 
         String trackingNumber = "TRK" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
@@ -62,6 +62,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         Delivery delivery = Delivery.builder()
                 .customerId(customerId)
+                .customerEmail(customerEmail)
                 .trackingNumber(trackingNumber)
                 .senderName(dto.getSenderName())
                 .senderAddress(senderAddress)
@@ -100,6 +101,22 @@ public class DeliveryServiceImpl implements DeliveryService {
                 null
         );
         rabbitTemplate.convertAndSend("delivery.exchange", "delivery.routing.key", event);
+
+        // Publish Booked Notification Event
+        if (customerEmail != null && !customerEmail.isEmpty()) {
+            org.raoamigos.deliveryservice.dto.DeliveryBookedEvent bookedEvent = new org.raoamigos.deliveryservice.dto.DeliveryBookedEvent(
+                    customerEmail,
+                    saved.getSenderName(),
+                    saved.getTrackingNumber(),
+                    saved.getReceiverName(),
+                    saved.getReceiverAddress().getCity(),
+                    saved.getPrice(),
+                    saved.getPaymentMethod().name()
+            );
+            rabbitTemplate.convertAndSend(org.raoamigos.deliveryservice.config.RabbitMQConfig.NOTIFICATION_EXCHANGE, 
+                                          org.raoamigos.deliveryservice.config.RabbitMQConfig.DELIVERY_BOOKED_ROUTING_KEY, 
+                                          bookedEvent);
+        }
 
         return saved;
     }
@@ -144,6 +161,18 @@ public class DeliveryServiceImpl implements DeliveryService {
         );
         rabbitTemplate.convertAndSend("delivery.exchange", "delivery.routing.key", event);
 
+        if (newStatus == DeliveryStatus.DELIVERED && saved.getCustomerEmail() != null) {
+            org.raoamigos.deliveryservice.dto.DeliveryDeliveredEvent deliveredEvent = new org.raoamigos.deliveryservice.dto.DeliveryDeliveredEvent(
+                    saved.getCustomerEmail(),
+                    saved.getTrackingNumber(),
+                    saved.getReceiverName(),
+                    deliveryNote
+            );
+            rabbitTemplate.convertAndSend(org.raoamigos.deliveryservice.config.RabbitMQConfig.NOTIFICATION_EXCHANGE,
+                                          org.raoamigos.deliveryservice.config.RabbitMQConfig.DELIVERY_DELIVERED_ROUTING_KEY,
+                                          deliveredEvent);
+        }
+
         return saved;
     }
 
@@ -174,6 +203,18 @@ public class DeliveryServiceImpl implements DeliveryService {
                 deliveryNote
         );
         rabbitTemplate.convertAndSend("delivery.exchange", "delivery.routing.key", event);
+
+        if (savedDelivery.getCustomerEmail() != null) {
+            org.raoamigos.deliveryservice.dto.DeliveryDeliveredEvent deliveredEvent = new org.raoamigos.deliveryservice.dto.DeliveryDeliveredEvent(
+                    savedDelivery.getCustomerEmail(),
+                    savedDelivery.getTrackingNumber(),
+                    savedDelivery.getReceiverName(),
+                    deliveryNote
+            );
+            rabbitTemplate.convertAndSend(org.raoamigos.deliveryservice.config.RabbitMQConfig.NOTIFICATION_EXCHANGE,
+                                          org.raoamigos.deliveryservice.config.RabbitMQConfig.DELIVERY_DELIVERED_ROUTING_KEY,
+                                          deliveredEvent);
+        }
 
         return savedDelivery;
     }

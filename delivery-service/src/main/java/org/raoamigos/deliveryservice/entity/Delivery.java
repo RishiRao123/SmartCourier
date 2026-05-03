@@ -24,6 +24,8 @@ public class Delivery {
     @Column(nullable = false)
     private Long customerId;
 
+    private String customerEmail;
+
     @Column(nullable = false, unique = true)
     private String trackingNumber;
 

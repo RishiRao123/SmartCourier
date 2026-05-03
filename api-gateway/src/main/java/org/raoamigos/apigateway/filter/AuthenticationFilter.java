@@ -56,11 +56,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     String userId = jwtUtil.extractUserId(authHeader);
                     String role = jwtUtil.extractRole(authHeader);
 
-                    log.info("Auth Filter: Success. Injecting X-User-Id: {} for path: {}", userId, request.getURI().getPath());
+                    String email = jwtUtil.extractEmail(authHeader);
+
+                    log.info("Auth Filter: Success. Injecting X-User-Id: {}, X-User-Email: {} for path: {}", userId, email, request.getURI().getPath());
 
                     ServerHttpRequest mutatedRequest = request.mutate()
                             .header("X-User-Id", userId)
                             .header("X-User-Role", role)
+                            .header("X-User-Email", email)
                             .build();
 
                     return chain.filter(exchange.mutate().request(mutatedRequest).build());

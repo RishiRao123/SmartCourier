@@ -100,6 +100,16 @@ services:
       - service-registry
       - config-server
 
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    restart: on-failure
+    ports:
+      - "8085:8085"
+    depends_on:
+      - rabbitmq
+      - service-registry
+
   # 5. The Front Door
   api-gateway:
     build: ./api-gateway

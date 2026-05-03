@@ -45,6 +45,7 @@ class DeliveryControllerTest {
     private Delivery dummyDelivery;
     private DeliveryRequestDTO dummyRequestDTO;
     private final Long CUSTOMER_ID = 101L;
+    private final String CUSTOMER_EMAIL = "test@example.com";
 
     @BeforeEach
     void setUp() {
@@ -78,11 +79,12 @@ class DeliveryControllerTest {
 
     @Test
     void createDelivery_ShouldReturn200AndDeliveryData() throws Exception {
-        when(deliveryService.createDelivery(any(DeliveryRequestDTO.class), eq(CUSTOMER_ID)))
+        when(deliveryService.createDelivery(any(DeliveryRequestDTO.class), eq(CUSTOMER_ID), eq(CUSTOMER_EMAIL)))
                 .thenReturn(dummyDelivery);
 
         mockMvc.perform(post("/deliveries")
                         .header("X-User-Id", CUSTOMER_ID)
+                        .header("X-User-Email", CUSTOMER_EMAIL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dummyRequestDTO)))
                 .andExpect(status().isOk())
@@ -141,6 +143,6 @@ class DeliveryControllerTest {
                         .content(objectMapper.writeValueAsString(badRequestDTO)))
                 .andExpect(status().isBadRequest());
 
-        verify(deliveryService, times(0)).createDelivery(any(), any());
+        verify(deliveryService, times(0)).createDelivery(any(), any(), any());
     }
 }

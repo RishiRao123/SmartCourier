@@ -18,6 +18,10 @@ public class RabbitMQConfig {
     public static final String EXCHANGE_NAME = "delivery.exchange";
     public static final String ROUTING_KEY = "delivery.routing.key";
 
+    public static final String NOTIFICATION_EXCHANGE = "notification.exchange";
+    public static final String DELIVERY_BOOKED_ROUTING_KEY = "notification.delivery.booked";
+    public static final String DELIVERY_DELIVERED_ROUTING_KEY = "notification.delivery.delivered";
+
     @Bean
     public Queue queue() {
         return new Queue(QUEUE_NAME, true);

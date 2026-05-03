@@ -13,4 +13,5 @@ public class DeliveryDTO {
     private Double price;
     private String paymentMethod;
     private String paymentStatus;
+    private java.util.Map<String, String> receiverAddress;
 }

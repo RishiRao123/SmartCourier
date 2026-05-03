@@ -43,19 +43,6 @@ public class User {
     private Role role;
 
     // ---- Profile Fields ----
-
-    private String phone;
-
-    private String street;
-
-    private String city;
-
-    private String state;
-
-    private String zipCode;
-
-    private String profileImagePath;
-
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;

@@ -1,0 +1,46 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: notification-service
+  config:
+    import: optional:configserver:http://config-server:8888
+
+  # RabbitMQ Connection
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+
+  # Gmail SMTP Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME:risxi.rao@gmail.com}
+    password: ${GMAIL_APP_PASSWORD:tdew swfe rmof axmg}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# Eureka Client
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# Logging
+logging:
+  level:
+    org.raoamigos.notificationservice: DEBUG
+    org.springframework.amqp: INFO
