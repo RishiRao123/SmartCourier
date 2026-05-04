@@ -11,7 +11,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleException(Exception e) {
-        e.printStackTrace(); // Log the stack trace to console
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(e.getMessage()));
     }
@@ -21,5 +21,17 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<java.util.Map<String, String>>> handleValidationException(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        java.util.Map<String, String> errors = new java.util.HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((org.springframework.validation.FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Validation failed", errors));
     }
 }

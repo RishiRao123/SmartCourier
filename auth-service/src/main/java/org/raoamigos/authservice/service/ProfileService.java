@@ -15,6 +15,8 @@ public interface ProfileService {
 
     ProfileDTO uploadProfileImage(Long userId, MultipartFile file);
 
+    ProfileDTO deleteProfileImage(Long userId);
+
     List<UserResponseDTO> getAllUsers();
 
     UserResponseDTO getUserById(Long userId);

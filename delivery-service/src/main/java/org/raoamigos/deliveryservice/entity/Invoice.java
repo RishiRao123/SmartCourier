@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Data
@@ -41,8 +41,8 @@ public class Invoice {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-    private LocalDateTime paidAt;
+    private Instant paidAt;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

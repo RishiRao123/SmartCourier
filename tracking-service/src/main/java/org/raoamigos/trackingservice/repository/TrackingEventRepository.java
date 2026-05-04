@@ -3,7 +3,7 @@ package org.raoamigos.trackingservice.repository;
 import org.raoamigos.trackingservice.entity.TrackingEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +15,7 @@ public interface TrackingEventRepository extends JpaRepository<TrackingEvent, Lo
 
     List<TrackingEvent> findByStatusOrderByTimestampDesc(String status);
 
-    List<TrackingEvent> findByTimestampAfterOrderByTimestampDesc(LocalDateTime timestamp);
+    List<TrackingEvent> findByTimestampAfterOrderByTimestampDesc(Instant timestamp);
 
     long countByTrackingNumber(String trackingNumber);
 }

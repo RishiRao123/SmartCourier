@@ -1,5 +1,9 @@
 spring:
   application:
     name: tracking-service
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    date-format: com.fasterxml.jackson.databind.util.StdDateFormat
   config:
     import: optional:configserver:http://config-server:8888

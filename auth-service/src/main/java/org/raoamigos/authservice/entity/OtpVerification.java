@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "otp_verification")
@@ -27,7 +27,7 @@ public class OtpVerification {
     private String otp;
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

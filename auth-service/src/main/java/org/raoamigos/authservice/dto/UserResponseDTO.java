@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -21,6 +21,6 @@ public class UserResponseDTO {
     private String city;
     private String state;
     private String profileImagePath;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
     private boolean active;
 }

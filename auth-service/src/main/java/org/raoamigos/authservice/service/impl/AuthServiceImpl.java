@@ -20,7 +20,7 @@ import org.raoamigos.authservice.dto.OtpEvent;
 import org.raoamigos.authservice.dto.PasswordResetEvent;
 import org.raoamigos.authservice.config.RabbitMQConfig;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Random;
 
 @Service
@@ -75,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
         OtpVerification otpVerification = OtpVerification.builder()
                 .email(user.getEmail())
                 .otp(otp)
-                .expiresAt(LocalDateTime.now().plusMinutes(10))
+                .expiresAt(Instant.now().plusSeconds(600))
                 .purpose(OtpPurpose.SIGNUP_OTP)
                 .build();
         otpVerificationRepository.save(otpVerification);
@@ -156,7 +156,7 @@ public class AuthServiceImpl implements AuthService {
         OtpVerification otpVerification = otpVerificationRepository.findByEmailAndOtpAndPurpose(email, otp, OtpPurpose.SIGNUP_OTP)
                 .orElseThrow(() -> new RuntimeException("Invalid OTP"));
 
-        if (otpVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (otpVerification.getExpiresAt().isBefore(Instant.now())) {
             throw new RuntimeException("OTP has expired");
         }
 
@@ -187,13 +187,13 @@ public class AuthServiceImpl implements AuthService {
         OtpVerification existingOtp = otpVerificationRepository.findByEmailAndPurpose(email, OtpPurpose.SIGNUP_OTP).orElse(null);
         if (existingOtp != null) {
             existingOtp.setOtp(otp);
-            existingOtp.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+            existingOtp.setExpiresAt(Instant.now().plusSeconds(600));
             otpVerificationRepository.save(existingOtp);
         } else {
             OtpVerification newOtp = OtpVerification.builder()
                     .email(user.getEmail())
                     .otp(otp)
-                    .expiresAt(LocalDateTime.now().plusMinutes(10))
+                    .expiresAt(Instant.now().plusSeconds(600))
                     .purpose(OtpPurpose.SIGNUP_OTP)
                     .build();
             otpVerificationRepository.save(newOtp);
@@ -228,7 +228,7 @@ public class AuthServiceImpl implements AuthService {
         OtpVerification otpVerification = OtpVerification.builder()
                 .email(email)
                 .otp(otp)
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .expiresAt(Instant.now().plusSeconds(900))
                 .purpose(OtpPurpose.PASSWORD_RESET)
                 .build();
         otpVerificationRepository.save(otpVerification);
@@ -247,7 +247,7 @@ public class AuthServiceImpl implements AuthService {
                 .findByEmailAndOtpAndPurpose(email, otp, OtpPurpose.PASSWORD_RESET)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired reset code."));
 
-        if (otpVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (otpVerification.getExpiresAt().isBefore(Instant.now())) {
             throw new RuntimeException("Reset code has expired. Please request a new one.");
         }
 

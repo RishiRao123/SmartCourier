@@ -13,7 +13,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -87,7 +87,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 .weightKg(dto.getPackageDetails().getWeight())
                 .paymentMethod(paymentMethod)
                 .paymentStatus(paymentStatus)
-                .paidAt(paymentMethod == PaymentMethod.PAY_NOW ? LocalDateTime.now() : null)
+                .paidAt(paymentMethod == PaymentMethod.PAY_NOW ? Instant.now() : null)
                 .build();
 
         invoiceRepository.save(invoice);
@@ -143,7 +143,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 invoiceRepository.findByDeliveryTrackingNumber(trackingNumber).ifPresent(invoice -> {
                     invoice.setPaymentStatus(PaymentStatus.PAID);
                     if (invoice.getPaidAt() == null) {
-                        invoice.setPaidAt(LocalDateTime.now());
+                        invoice.setPaidAt(Instant.now());
                     }
                     invoiceRepository.save(invoice);
                 });
@@ -187,7 +187,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             invoiceRepository.findByDeliveryTrackingNumber(trackingNumber).ifPresent(invoice -> {
                 invoice.setPaymentStatus(PaymentStatus.PAID);
                 if (invoice.getPaidAt() == null) {
-                    invoice.setPaidAt(LocalDateTime.now());
+                    invoice.setPaidAt(Instant.now());
                 }
                 invoiceRepository.save(invoice);
             });
@@ -245,12 +245,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public List<Delivery> getDeliveriesByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Delivery> getDeliveriesByDateRange(Instant startDate, Instant endDate) {
         return deliveryRepository.findByCreatedAtBetween(startDate, endDate);
     }
 
     @Override
-    public List<Delivery> searchDeliveries(DeliveryStatus status, String city, LocalDateTime start, LocalDateTime end) {
+    public List<Delivery> searchDeliveries(DeliveryStatus status, String city, Instant start, Instant end) {
         List<Delivery> all = deliveryRepository.findAll();
 
         return all.stream()
@@ -278,7 +278,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                             .weightKg(delivery.getPackageDetails().getWeight())
                             .paymentMethod(delivery.getPaymentMethod() != null ? delivery.getPaymentMethod() : org.raoamigos.deliveryservice.entity.PaymentMethod.PAY_ON_DELIVERY)
                             .paymentStatus(delivery.getPaymentStatus() != null ? delivery.getPaymentStatus() : org.raoamigos.deliveryservice.entity.PaymentStatus.UNPAID)
-                            .createdAt(LocalDateTime.now())
+                            .createdAt(Instant.now())
                             .build();
                     return invoiceRepository.save(newInvoice);
                 });

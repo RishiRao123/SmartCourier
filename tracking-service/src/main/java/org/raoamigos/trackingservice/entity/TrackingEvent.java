@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "tracking_event")
@@ -38,5 +38,5 @@ public class TrackingEvent {
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 }

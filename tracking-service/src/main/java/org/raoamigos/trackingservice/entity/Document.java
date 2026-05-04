@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 
 @Entity
@@ -37,6 +37,6 @@ public class Document {
     private String uploaderRole;
 
     @CreationTimestamp
-    private     LocalDateTime uploadedAt;
+    private Instant uploadedAt;
 
 }

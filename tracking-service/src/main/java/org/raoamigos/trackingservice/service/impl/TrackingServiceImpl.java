@@ -6,7 +6,8 @@ import org.raoamigos.trackingservice.repository.TrackingEventRepository;
 import org.raoamigos.trackingservice.service.TrackingService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -49,7 +50,7 @@ public class TrackingServiceImpl implements TrackingService {
 
     @Override
     public List<TrackingEvent> getRecentSystemEvents(int days) {
-        LocalDateTime cutoffDate = LocalDateTime.now().minusDays(days);
+        Instant cutoffDate = Instant.now().minus(days, ChronoUnit.DAYS);
         return trackingEventRepository.findByTimestampAfterOrderByTimestampDesc(cutoffDate);
     }
 

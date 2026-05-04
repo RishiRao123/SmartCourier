@@ -85,6 +85,24 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
+    public ProfileDTO deleteProfileImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        if (user.getProfileImagePath() != null) {
+            try {
+                Path filePath = Paths.get(profileUploadDir).resolve(user.getProfileImagePath());
+                Files.deleteIfExists(filePath);
+            } catch (IOException e) {
+                // ignore
+            }
+            user.setProfileImagePath(null);
+            user = userRepository.save(user);
+        }
+        return mapToProfileDTO(user);
+    }
+
+    @Override
     public List<UserResponseDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::mapToUserResponseDTO)

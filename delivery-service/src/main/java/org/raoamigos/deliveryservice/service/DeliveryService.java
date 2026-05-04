@@ -5,7 +5,7 @@ import org.raoamigos.deliveryservice.dto.InvoiceResponseDTO;
 import org.raoamigos.deliveryservice.entity.Delivery;
 import org.raoamigos.deliveryservice.entity.DeliveryStatus;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface DeliveryService {
@@ -20,8 +20,7 @@ public interface DeliveryService {
     List<Delivery> getDeliveriesByStatus(DeliveryStatus status);
     long countDeliveriesByStatus(DeliveryStatus status);
     List<Delivery> getDeliveriesByCity(String city);
-    List<Delivery> getDeliveriesByDateRange(LocalDateTime startDate, LocalDateTime endDate);
-    List<Delivery> searchDeliveries(DeliveryStatus status, String city, LocalDateTime start, LocalDateTime end);
+    List<Delivery> getDeliveriesByDateRange(Instant startDate, Instant endDate);
+    List<Delivery> searchDeliveries(DeliveryStatus status, String city, Instant start, Instant end);
     InvoiceResponseDTO getInvoiceByTrackingNumber(String trackingNumber);
 }
-

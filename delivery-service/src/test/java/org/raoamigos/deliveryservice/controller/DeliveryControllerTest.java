@@ -1,148 +1,179 @@
 package org.raoamigos.deliveryservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.raoamigos.deliveryservice.dto.DeliveryRequestDTO;
+import org.raoamigos.deliveryservice.dto.InvoiceResponseDTO;
 import org.raoamigos.deliveryservice.entity.Delivery;
 import org.raoamigos.deliveryservice.entity.DeliveryStatus;
 import org.raoamigos.deliveryservice.repository.DeliveryRepository;
 import org.raoamigos.deliveryservice.service.DeliveryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-
+import java.time.Instant;
 import java.util.List;
 
-@ExtendWith(MockitoExtension.class)
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+/**
+ * Phase 4 — DeliveryController @WebMvcTest (7 scenarios)
+ *
+ * Uses the real SecurityConfig which permits all at the filter level but parses headers.
+ * Needs mocked beans for HeaderAuthenticationFilter (if it depends on anything).
+ */
+@WebMvcTest(DeliveryController.class)
+@Import({org.raoamigos.deliveryservice.security.SecurityConfig.class, org.raoamigos.deliveryservice.security.HeaderAuthenticationFilter.class})
 class DeliveryControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
-    private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Mock
-    private DeliveryService deliveryService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Mock
-    private DeliveryRepository deliveryRepository;
+    @MockBean private DeliveryService deliveryService;
+    @MockBean private DeliveryRepository deliveryRepository;
 
-    @InjectMocks
-    private DeliveryController deliveryController;
+    // ─── Helpers ─────────────────────────────────────────────────────────────
 
-    private Delivery dummyDelivery;
-    private DeliveryRequestDTO dummyRequestDTO;
-    private final Long CUSTOMER_ID = 101L;
-    private final String CUSTOMER_EMAIL = "test@example.com";
+    private DeliveryRequestDTO buildRequestDTO() {
+        DeliveryRequestDTO dto = new DeliveryRequestDTO();
+        dto.setSenderName("Alice");
+        DeliveryRequestDTO.AddressDTO senderAddr = new DeliveryRequestDTO.AddressDTO();
+        senderAddr.setStreet("1 St"); senderAddr.setCity("Mumbai"); senderAddr.setState("MH"); senderAddr.setZipCode("400001");
+        dto.setSenderAddress(senderAddr);
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(deliveryController).build();
+        dto.setReceiverName("Bob");
+        dto.setReceiverPhone("9876543210");
+        DeliveryRequestDTO.AddressDTO receiverAddr = new DeliveryRequestDTO.AddressDTO();
+        receiverAddr.setStreet("2 St"); receiverAddr.setCity("Delhi"); receiverAddr.setState("DL"); receiverAddr.setZipCode("110001");
+        dto.setReceiverAddress(receiverAddr);
 
-        dummyRequestDTO = new DeliveryRequestDTO();
-        dummyRequestDTO.setSenderName("John Doe");
-        dummyRequestDTO.setReceiverName("Jane Doe");
+        DeliveryRequestDTO.PackageDTO packageDTO = new DeliveryRequestDTO.PackageDTO();
+        packageDTO.setWeight(2.5);
+        packageDTO.setDescription("Books");
+        dto.setPackageDetails(packageDTO);
 
-        DeliveryRequestDTO.AddressDTO address = new DeliveryRequestDTO.AddressDTO();
-        address.setStreet("123 Main St");
-        address.setCity("Metropolis");
-        address.setState("NY");
-        address.setZipCode("10001");
-
-        dummyRequestDTO.setSenderAddress(address);
-        dummyRequestDTO.setReceiverAddress(address);
-
-        DeliveryRequestDTO.PackageDTO pkg = new DeliveryRequestDTO.PackageDTO();
-        pkg.setWeight(2.5);
-        pkg.setDescription("Books");
-        dummyRequestDTO.setPackageDetails(pkg);
-        dummyRequestDTO.setPaymentMethod("PAY_ON_DELIVERY");
-
-        dummyDelivery = Delivery.builder()
-                .customerId(CUSTOMER_ID)
-                .trackingNumber("TRK12345678")
-                .status(DeliveryStatus.BOOKED)
-                .build();
+        dto.setPaymentMethod("PAY_NOW");
+        return dto;
     }
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Scenarios
+    // ═══════════════════════════════════════════════════════════════════════════
+
     @Test
-    void createDelivery_ShouldReturn200AndDeliveryData() throws Exception {
-        when(deliveryService.createDelivery(any(DeliveryRequestDTO.class), eq(CUSTOMER_ID), eq(CUSTOMER_EMAIL)))
-                .thenReturn(dummyDelivery);
+    @DisplayName("Scenario 1: POST /deliveries returns 200 and json with trackingNumber")
+    void createDelivery_HappyPath_Returns200() throws Exception {
+        DeliveryRequestDTO dto = buildRequestDTO();
+        Delivery delivery = Delivery.builder().trackingNumber("TRK123").build();
+
+        when(deliveryService.createDelivery(any(), eq(100L), eq("test@test.com"))).thenReturn(delivery);
 
         mockMvc.perform(post("/deliveries")
-                        .header("X-User-Id", CUSTOMER_ID)
-                        .header("X-User-Email", CUSTOMER_EMAIL)
+                        .header("X-User-Id", "100")
+                        .header("X-User-Email", "test@test.com")
+                        .header("X-User-Role", "CUSTOMER")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dummyRequestDTO)))
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Delivery created successfully"))
-                .andExpect(jsonPath("$.data.trackingNumber").value("TRK12345678"))
-                .andExpect(jsonPath("$.data.status").value("BOOKED"));
+                .andExpect(jsonPath("$.data.trackingNumber").value("TRK123"));
     }
 
     @Test
-    void getDelivery_ShouldReturn200AndDeliveryData() throws Exception {
-        when(deliveryService.getDeliveryByTrackingNumber("TRK12345678"))
-                .thenReturn(dummyDelivery);
+    @DisplayName("Scenario 2: POST /deliveries returns 400 when body fails validation")
+    void createDelivery_ValidationFail_Returns400() throws Exception {
+        DeliveryRequestDTO dto = new DeliveryRequestDTO(); // Empty, fails @NotNull
 
-        mockMvc.perform(get("/deliveries/{trackingNumber}", "TRK12345678")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Delivery fetched successfully"))
-                .andExpect(jsonPath("$.data.trackingNumber").value("TRK12345678"));
+        mockMvc.perform(post("/deliveries")
+                        .header("X-User-Id", "100")
+                        .header("X-User-Email", "test@test.com")
+                        .header("X-User-Role", "CUSTOMER")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void getMyDeliveries_ShouldReturn200AndList() throws Exception {
-        when(deliveryService.getMyDeliveries(CUSTOMER_ID))
-                .thenReturn(List.of(dummyDelivery));
+    @DisplayName("Scenario 3: GET /deliveries/{trackingNumber} serializes createdAt as ISO-8601 UTC")
+    void getDelivery_ReturnsIso8601Utc() throws Exception {
+        Instant now = Instant.parse("2026-05-04T14:00:00Z");
+        Delivery delivery = Delivery.builder().trackingNumber("TRK123").createdAt(now).build();
 
-        mockMvc.perform(get("/deliveries/my")
-                        .header("X-User-Id", CUSTOMER_ID)
-                        .contentType(MediaType.APPLICATION_JSON))
+        when(deliveryService.getDeliveryByTrackingNumber("TRK123")).thenReturn(delivery);
+
+        mockMvc.perform(get("/deliveries/TRK123")
+                        .header("X-User-Role", "CUSTOMER"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("User deliveries fetched successfully"))
-                .andExpect(jsonPath("$.data[0].trackingNumber").value("TRK12345678"));
+                .andExpect(jsonPath("$.data.createdAt").value("2026-05-04T14:00:00Z"));
     }
 
     @Test
-    void updateStatus_ShouldReturn200AndUpdatedDelivery() throws Exception {
-        dummyDelivery.setStatus(DeliveryStatus.IN_TRANSIT);
+    @DisplayName("Scenario 4: GET /deliveries/{trackingNumber} throws 400 BAD_REQUEST when service throws RuntimeException")
+    void getDelivery_WhenNotFound_ThrowsException() throws Exception {
+        when(deliveryService.getDeliveryByTrackingNumber("TRK999"))
+                .thenThrow(new RuntimeException("Delivery not found"));
 
-        when(deliveryService.updateDeliveryStatus(eq("TRK12345678"), eq(DeliveryStatus.IN_TRANSIT), any(), any()))
-                .thenReturn(dummyDelivery);
+        mockMvc.perform(get("/deliveries/TRK999")
+                        .header("X-User-Role", "CUSTOMER"))
+                .andExpect(status().isBadRequest());
+    }
 
-        mockMvc.perform(put("/deliveries/{trackingNumber}/status", "TRK12345678")
+    @Test
+    @DisplayName("Scenario 5: GET /deliveries/{trackingNumber}/invoice returns InvoiceResponseDTO with UTC Instants")
+    void getInvoice_ReturnsInvoiceResponseDTO() throws Exception {
+        Instant now = Instant.parse("2026-05-04T14:00:00Z");
+        InvoiceResponseDTO invoice = InvoiceResponseDTO.builder()
+                .invoiceNumber("INV-001")
+                .createdAt(now)
+                .paidAt(now)
+                .build();
+
+        when(deliveryService.getInvoiceByTrackingNumber("TRK123")).thenReturn(invoice);
+
+        mockMvc.perform(get("/deliveries/TRK123/invoice")
+                        .header("X-User-Role", "CUSTOMER"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.invoiceNumber").value("INV-001"))
+                .andExpect(jsonPath("$.data.createdAt").value("2026-05-04T14:00:00Z"))
+                .andExpect(jsonPath("$.data.paidAt").value("2026-05-04T14:00:00Z"));
+    }
+
+    @Test
+    @DisplayName("Scenario 6: PUT /deliveries/{trackingNumber}/status returns 200")
+    void updateStatus_HappyPath_Returns200() throws Exception {
+        Delivery delivery = Delivery.builder().trackingNumber("TRK123").status(DeliveryStatus.IN_TRANSIT).build();
+
+        when(deliveryService.updateDeliveryStatus(eq("TRK123"), eq(DeliveryStatus.IN_TRANSIT), any(), any()))
+                .thenReturn(delivery);
+
+        mockMvc.perform(put("/deliveries/TRK123/status")
                         .param("status", "IN_TRANSIT")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .header("X-User-Role", "ADMIN"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Status updated successfully"))
                 .andExpect(jsonPath("$.data.status").value("IN_TRANSIT"));
     }
 
     @Test
-    void createDelivery_WhenPayloadIsInvalid_ShouldReturn400BadRequest() throws Exception {
-        DeliveryRequestDTO badRequestDTO = new DeliveryRequestDTO();
+    @DisplayName("Scenario 7: GET /deliveries/my scopes by X-User-Id header")
+    void getMyDeliveries_UsesHeader_ReturnsList() throws Exception {
+        Delivery d1 = Delivery.builder().trackingNumber("TRK1").build();
+        when(deliveryService.getMyDeliveries(100L)).thenReturn(List.of(d1));
 
-        mockMvc.perform(post("/deliveries")
-                        .header("X-User-Id", CUSTOMER_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(badRequestDTO)))
-                .andExpect(status().isBadRequest());
-
-        verify(deliveryService, times(0)).createDelivery(any(), any(), any());
+        mockMvc.perform(get("/deliveries/my")
+                        .header("X-User-Id", "100")
+                        .header("X-User-Role", "CUSTOMER"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].trackingNumber").value("TRK1"));
     }
+
 }

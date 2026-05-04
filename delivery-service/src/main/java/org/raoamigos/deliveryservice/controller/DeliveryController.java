@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -122,8 +122,8 @@ public class DeliveryController {
     @GetMapping("/admin/report")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<Delivery>>> getByDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end) {
         List<Delivery> deliveries = deliveryService.getDeliveriesByDateRange(start, end);
         return ResponseEntity.ok(ApiResponse.success("Deliveries in date range fetched", deliveries));
     }
@@ -133,8 +133,8 @@ public class DeliveryController {
     public ResponseEntity<ApiResponse<List<Delivery>>> searchDeliveries(
             @RequestParam(required = false) DeliveryStatus status,
             @RequestParam(required = false) String city,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end) {
         List<Delivery> deliveries = deliveryService.searchDeliveries(status, city, start, end);
         return ResponseEntity.ok(ApiResponse.success("Deliveries searched successfully", deliveries));
     }

@@ -53,6 +53,13 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success("Profile image uploaded successfully", updated));
     }
 
+    @DeleteMapping("/profile/image")
+    public ResponseEntity<ApiResponse<ProfileDTO>> deleteProfileImage(jakarta.servlet.http.HttpServletRequest request) {
+        Long userId = getUserIdFromHeader(request);
+        ProfileDTO updated = profileService.deleteProfileImage(userId);
+        return ResponseEntity.ok(ApiResponse.success("Profile image deleted successfully", updated));
+    }
+
     @GetMapping("/profile/image/{filename}")
     public ResponseEntity<Resource> getProfileImage(@PathVariable String filename) {
         try {

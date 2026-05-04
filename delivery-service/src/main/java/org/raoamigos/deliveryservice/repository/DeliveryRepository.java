@@ -4,7 +4,7 @@ import org.raoamigos.deliveryservice.entity.Delivery;
 import org.raoamigos.deliveryservice.entity.DeliveryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,5 +23,5 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
 
     List<Delivery> findByReceiverAddressCityIgnoreCase(String city);
 
-    List<Delivery> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+    List<Delivery> findByCreatedAtBetween(Instant startDate, Instant endDate);
 }
