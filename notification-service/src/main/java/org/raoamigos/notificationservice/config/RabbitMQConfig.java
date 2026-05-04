@@ -95,7 +95,20 @@ public class RabbitMQConfig {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return new Jackson2JsonMessageConverter(mapper);
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter(mapper);
+        org.springframework.amqp.support.converter.DefaultJackson2JavaTypeMapper typeMapper = 
+            new org.springframework.amqp.support.converter.DefaultJackson2JavaTypeMapper();
+        typeMapper.setTrustedPackages("*");
+        
+        java.util.Map<String, Class<?>> idClassMapping = new java.util.HashMap<>();
+        idClassMapping.put("org.raoamigos.authservice.dto.OtpEvent", org.raoamigos.notificationservice.dto.OtpEmailEvent.class);
+        idClassMapping.put("org.raoamigos.authservice.dto.AdminCredentialsEvent", org.raoamigos.notificationservice.dto.AdminCredentialsEvent.class);
+        idClassMapping.put("org.raoamigos.deliveryservice.dto.DeliveryBookedEvent", org.raoamigos.notificationservice.dto.DeliveryBookedEvent.class);
+        idClassMapping.put("org.raoamigos.deliveryservice.dto.DeliveryDeliveredEvent", org.raoamigos.notificationservice.dto.DeliveryDeliveredEvent.class);
+        typeMapper.setIdClassMapping(idClassMapping);
+        
+        converter.setJavaTypeMapper(typeMapper);
+        return converter;
     }
 
     @Bean
