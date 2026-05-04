@@ -1,5 +1,6 @@
 package org.raoamigos.deliveryservice.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.raoamigos.deliveryservice.dto.DeliveryRequestDTO;
 import org.raoamigos.deliveryservice.dto.DeliveryUpdateEvent;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeliveryServiceImpl implements DeliveryService {
@@ -77,6 +79,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 .build();
 
         Delivery saved = deliveryRepository.save(delivery);
+        log.info("New delivery created: trackingNumber={}, customerEmail={}", trackingNumber, customerEmail);
 
         // Create Invoice
         String invoiceNumber = "INV" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -151,6 +154,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         Delivery saved = deliveryRepository.save(delivery);
+        log.info("Delivery status updated: trackingNumber={}, newStatus={}", trackingNumber, newStatus);
 
         DeliveryUpdateEvent event = new DeliveryUpdateEvent(
                 saved.getTrackingNumber(),

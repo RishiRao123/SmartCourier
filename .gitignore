@@ -5,7 +5,6 @@ target/
 *.class
 
 # Spring Boot
-*.log
 logs/
 
 # IDEs
@@ -25,6 +24,19 @@ Thumbs.db
 out/
 build/
 
-frontend-admin/
-frontend-user/
-node_modules/
+# ─── Frontend: Admin ────────────────────────────────────────────────────────
+frontend-admin/node_modules/
+frontend-admin/dist/
+frontend-admin/.env
+frontend-admin/.env.*
+frontend-admin/.env.local
+
+# ─── Frontend: User ─────────────────────────────────────────────────────────
+frontend-user/node_modules/
+frontend-user/dist/
+frontend-user/.env
+frontend-user/.env.*
+frontend-user/.env.local
+
+# Root-level node_modules (safety net)
+node_modules/

@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SuperAdminSeeder implements CommandLineRunner {
@@ -29,9 +30,9 @@ public class SuperAdminSeeder implements CommandLineRunner {
                     .build();
 
             userRepository.save(superAdmin);
-            System.out.println("✅ Super Admin seeded successfully: " + superAdminEmail);
+            log.info("✅ Super Admin seeded successfully: {}", superAdminEmail);
         } else {
-            System.out.println("ℹ️ Super Admin already exists: " + superAdminEmail);
+            log.info("ℹ️ Super Admin already exists: {}", superAdminEmail);
         }
     }
 }

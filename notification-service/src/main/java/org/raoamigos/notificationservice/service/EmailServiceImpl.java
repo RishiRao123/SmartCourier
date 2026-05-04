@@ -24,8 +24,10 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Value("${smartcourier.tracking.url:http://localhost:5173/track/}")
+    private String trackingBaseUrl;
+
     private static final String BRAND_NAME = "SmartCourier";
-    private static final String TRACKING_BASE_URL = "http://localhost:5173/track/";
 
     // =============================================
     // 1. OTP VERIFICATION EMAIL
@@ -92,7 +94,7 @@ public class EmailServiceImpl implements EmailService {
             return;
         }
         String subject = "Shipment Booked — " + safeStr(event.getTrackingNumber()) + " | " + BRAND_NAME;
-        String trackingUrl = TRACKING_BASE_URL + safeStr(event.getTrackingNumber());
+        String trackingUrl = trackingBaseUrl + safeStr(event.getTrackingNumber());
         String paymentStr = event.getPaymentMethod() != null ? event.getPaymentMethod().replace("_", " ") : "N/A";
         String priceStr = event.getPrice() != null ? String.format("%.2f", event.getPrice()) : "0.00";
         String html = buildBaseTemplate(
@@ -159,6 +161,33 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(event.getCustomerEmail(), subject, html);
     }
 
+    @Override
+    public void sendDeliveryStatusUpdateEmail(DeliveryStatusUpdateEvent event) {
+        if (event == null || event.getCustomerEmail() == null) {
+            log.warn("⚠️ DeliveryStatusUpdateEvent is null or missing customerEmail — skipping email");
+            return;
+        }
+        String subject = "Status Update: " + safeStr(event.getNewStatus()) + " — " + BRAND_NAME;
+        String trackingUrl = trackingBaseUrl + safeStr(event.getTrackingNumber());
+        String html = buildBaseTemplate(
+            "Shipment Update",
+            "🚚 Hello " + safeStr(event.getCustomerName()) + ",",
+            "<p style=\"color:#475569;font-size:16px;line-height:1.7;margin:0 0 30px 0;\">"
+                + "Your shipment has a new status update.</p>"
+            + "<div style=\"background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;padding:40px;text-align:center;margin:0 0 30px 0;\">"
+                + "<p style=\"color:#64748b;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin:0 0 16px 0;\">CURRENT STATUS</p>"
+                + "<div style=\"font-size:32px;font-weight:900;color:#2563eb;letter-spacing:-1px;\">"
+                    + safeStr(event.getNewStatus()).replace("_", " ")
+                + "</div>"
+                + (event.getLocation() != null ? "<p style=\"color:#3b82f6;font-size:14px;font-weight:600;margin:12px 0 0 0;\">📍 " + event.getLocation() + "</p>" : "")
+            + "</div>"
+            + "<div style=\"text-align:center;margin:0 0 30px 0;\">"
+                + "<a href=\"" + trackingUrl + "\" style=\"display:inline-block;background:#EAB308;color:#071a2a;font-weight:900;font-size:16px;padding:16px 40px;border-radius:14px;text-decoration:none;letter-spacing:1px;\">TRACK SHIPMENT →</a>"
+            + "</div>"
+        );
+        sendHtmlEmail(event.getCustomerEmail(), subject, html);
+    }
+
     // =============================================
     // PRIVATE HELPERS
     // =============================================
@@ -188,27 +217,27 @@ public class EmailServiceImpl implements EmailService {
     private String buildBaseTemplate(String headerTitle, String greeting, String bodyContent) {
         return "<!DOCTYPE html>"
             + "<html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head>"
-            + "<body style=\"margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;\">"
-            + "<div style=\"max-width:600px;margin:0 auto;padding:40px 20px;\">"
+            + "<body style=\"margin:0;padding:0;background-color:#f4f7fa;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\">"
+            + "<div style=\"max-width:600px;margin:0 auto;padding:60px 20px;\">"
 
                 // Logo Header
-                + "<div style=\"text-align:center;margin:0 0 32px 0;\">"
-                    + "<div style=\"display:inline-block;background:#EAB308;width:52px;height:52px;border-radius:16px;line-height:52px;text-align:center;font-size:24px;margin:0 0 16px 0;box-shadow:0 4px 10px rgba(234,179,8,0.3);\">📦</div>"
-                    + "<h1 style=\"color:#071a2a;font-size:28px;font-weight:900;margin:0;\">Smart<span style=\"color:#EAB308;\">Courier</span></h1>"
+                + "<div style=\"text-align:center;margin:0 0 40px 0;\">"
+                    + "<div style=\"display:inline-block;background:#EAB308;width:64px;height:64px;border-radius:20px;line-height:64px;text-align:center;font-size:32px;margin:0 0 20px 0;box-shadow:0 12px 24px rgba(234,179,8,0.4);\">📦</div>"
+                    + "<h1 style=\"color:#071a2a;font-size:32px;font-weight:900;margin:0;letter-spacing:-1px;\">Smart<span style=\"color:#EAB308;\">Courier</span></h1>"
                 + "</div>"
 
                 // Main Card
-                + "<div style=\"background:#ffffff;border-radius:24px;padding:48px 40px;border:1px solid #e2e8f0;box-shadow:0 10px 25px -5px rgba(0,0,0,0.05);\">"
+                + "<div style=\"background:#ffffff;border-radius:32px;padding:56px 48px;border:1px solid #eef2f6;box-shadow:0 20px 40px -10px rgba(7,26,42,0.1);\">"
 
                     // Header badge
-                    + "<div style=\"text-align:center;margin:0 0 32px 0;\">"
-                        + "<span style=\"display:inline-block;background:rgba(234,179,8,0.15);color:#ca8a04;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;padding:8px 20px;border-radius:100px;\">"
+                    + "<div style=\"text-align:center;margin:0 0 40px 0;\">"
+                        + "<span style=\"display:inline-block;background:rgba(234,179,8,0.1);color:#ca8a04;font-size:12px;font-weight:900;letter-spacing:4px;text-transform:uppercase;padding:10px 24px;border-radius:100px;border:1px solid rgba(234,179,8,0.2);\">"
                             + headerTitle
                         + "</span>"
                     + "</div>"
 
                     // Greeting
-                    + "<h2 style=\"color:#0f172a;font-size:22px;font-weight:800;margin:0 0 20px 0;\">" + greeting + "</h2>"
+                    + "<h2 style=\"color:#0f172a;font-size:26px;font-weight:900;margin:0 0 24px 0;letter-spacing:-0.5px;\">" + greeting + "</h2>"
 
                     // Dynamic body content
                     + bodyContent
@@ -216,9 +245,15 @@ public class EmailServiceImpl implements EmailService {
                 + "</div>"
 
                 // Footer
-                + "<div style=\"text-align:center;margin:32px 0 0 0;\">"
-                    + "<p style=\"color:#64748b;font-size:12px;margin:0 0 8px 0;font-weight:600;\">© 2026 SmartCourier — Your Trusted Logistics Partner</p>"
-                    + "<p style=\"color:#94a3b8;font-size:11px;margin:0;\">This is an automated email. Please do not reply directly.</p>"
+                + "<div style=\"text-align:center;margin:48px 0 0 0;\">"
+                    + "<div style=\"margin:0 0 24px 0;\">"
+                        + "<span style=\"color:#071a2a;font-weight:900;font-size:14px;\">Smart</span><span style=\"color:#EAB308;font-weight:900;font-size:14px;\">Courier</span>"
+                    + "</div>"
+                    + "<p style=\"color:#64748b;font-size:13px;margin:0 0 10px 0;font-weight:600;\">Premium Logistics. Global Reach. Local Care.</p>"
+                    + "<p style=\"color:#94a3b8;font-size:11px;margin:0;line-height:1.6;\">"
+                        + "© 2026 SmartCourier International. All rights reserved.<br/>"
+                        + "This is an automated security notification. Do not reply."
+                    + "</p>"
                 + "</div>"
 
             + "</div>"

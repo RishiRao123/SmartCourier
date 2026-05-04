@@ -1,5 +1,6 @@
 package org.raoamigos.authservice.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.raoamigos.authservice.dto.LoginRequestDTO;
 import org.raoamigos.authservice.dto.RegisterRequestDTO;
@@ -23,6 +24,7 @@ import org.raoamigos.authservice.config.RabbitMQConfig;
 import java.time.Instant;
 import java.util.Random;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -61,12 +63,11 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
+        log.info("New user registered: {}", user.getEmail());
 
         // Generate OTP
         String otp = generateOtp();
-        System.out.println("\n=============================================");
-        System.out.println("DEBUG - GENERATED OTP FOR " + user.getEmail() + " IS: " + otp);
-        System.out.println("=============================================\n");
+        log.debug("Generated OTP for {}: {}", user.getEmail(), otp);
         
         // Remove existing signup OTP if any
         otpVerificationRepository.deleteByEmailAndPurpose(user.getEmail(), OtpPurpose.SIGNUP_OTP);
@@ -93,6 +94,7 @@ public class AuthServiceImpl implements AuthService {
                 dto.getEmail(),
                 dto.getPassword()
         ));
+        log.info("Authentication successful for user: {}", dto.getEmail());
 
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -133,6 +135,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
+        log.info("Admin registered: email={}, username={}", user.getEmail(), user.getUsername());
 
         // Send credentials via RabbitMQ
         org.raoamigos.authservice.dto.AdminCredentialsEvent event = new org.raoamigos.authservice.dto.AdminCredentialsEvent(
@@ -141,6 +144,7 @@ public class AuthServiceImpl implements AuthService {
                 rawPassword
         );
         rabbitTemplate.convertAndSend(RabbitMQConfig.NOTIFICATION_EXCHANGE, RabbitMQConfig.ADMIN_CREDENTIALS_ROUTING_KEY, event);
+        log.info("Admin credentials event published for: {}", user.getEmail());
 
         return "Admin registration submitted successfully. Credentials have been emailed.";
     }
@@ -217,9 +221,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String otp = generateOtp();
-        System.out.println("\n=============================================");
-        System.out.println("DEBUG - PASSWORD RESET OTP FOR " + email + " IS: " + otp);
-        System.out.println("=============================================\n");
+        log.debug("Password reset OTP for {}: {}", email, otp);
 
         // Remove existing password reset OTP if any
         otpVerificationRepository.deleteByEmailAndPurpose(email, OtpPurpose.PASSWORD_RESET);

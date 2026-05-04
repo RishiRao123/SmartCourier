@@ -1,6 +1,7 @@
 package org.raoamigos.authservice.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.raoamigos.authservice.dto.*;
 import org.raoamigos.authservice.service.AuthService;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.raoamigos.authservice.entity.User;
 import org.raoamigos.authservice.repository.UserRepository;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -20,12 +22,14 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<String>> signup(@Valid @RequestBody RegisterRequestDTO dto) {
+        log.info("Signup request for email: {}", dto.getEmail());
         String message = authService.register(dto);
         return ResponseEntity.ok(ApiResponse.success("User registered successfully", message));
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<String>> login(@Valid @RequestBody LoginRequestDTO dto) {
+        log.info("Login request for email: {}", dto.getEmail());
         String token = authService.login(dto);
         return ResponseEntity.ok(ApiResponse.success("Login successful", token));
     }

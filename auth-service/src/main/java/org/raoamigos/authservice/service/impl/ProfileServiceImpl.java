@@ -1,5 +1,6 @@
 package org.raoamigos.authservice.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.raoamigos.authservice.dto.ProfileDTO;
 import org.raoamigos.authservice.dto.ProfileUpdateDTO;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
@@ -52,6 +54,7 @@ public class ProfileServiceImpl implements ProfileService {
         if (dto.getZipCode() != null) user.setZipCode(dto.getZipCode());
 
         User saved = userRepository.save(user);
+        log.info("Profile updated for userId={}", userId);
         return mapToProfileDTO(saved);
     }
 
@@ -77,9 +80,11 @@ public class ProfileServiceImpl implements ProfileService {
 
             user.setProfileImagePath(fileName);
             User saved = userRepository.save(user);
+            log.info("Profile image uploaded for userId={}, fileName={}", userId, fileName);
             return mapToProfileDTO(saved);
 
         } catch (IOException e) {
+            log.error("Failed to upload profile image for userId={}: {}", userId, e.getMessage());
             throw new RuntimeException("Failed to upload profile image: " + e.getMessage());
         }
     }
@@ -93,11 +98,13 @@ public class ProfileServiceImpl implements ProfileService {
             try {
                 Path filePath = Paths.get(profileUploadDir).resolve(user.getProfileImagePath());
                 Files.deleteIfExists(filePath);
+                log.info("Profile image file deleted for userId={}", userId);
             } catch (IOException e) {
-                // ignore
+                log.warn("Failed to delete profile image file for userId={}: {}", userId, e.getMessage());
             }
             user.setProfileImagePath(null);
             user = userRepository.save(user);
+            log.info("Profile image path cleared in DB for userId={}", userId);
         }
         return mapToProfileDTO(user);
     }

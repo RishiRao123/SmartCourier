@@ -1,5 +1,6 @@
 package org.raoamigos.trackingservice.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.raoamigos.trackingservice.entity.TrackingEvent;
 import org.raoamigos.trackingservice.repository.TrackingEventRepository;
@@ -10,6 +11,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrackingServiceImpl implements TrackingService {
@@ -30,6 +32,7 @@ public class TrackingServiceImpl implements TrackingService {
     @Override
     public void saveTrackingEvent(TrackingEvent event) {
         trackingEventRepository.save(event);
+        log.info("Saved tracking event: trackingNumber={}, status={}", event.getTrackingNumber(), event.getStatus());
     }
 
     @Override
