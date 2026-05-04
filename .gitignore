@@ -3,6 +3,8 @@
 target/
 *.log
 *.class
+*.jar
+*.war
 
 # Spring Boot
 logs/
