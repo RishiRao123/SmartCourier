@@ -1,6 +1,7 @@
 package org.raoamigos.authservice.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.raoamigos.authservice.entity.Role;
 import org.raoamigos.authservice.entity.User;
 import org.raoamigos.authservice.repository.UserRepository;

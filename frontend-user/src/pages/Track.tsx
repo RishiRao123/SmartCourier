@@ -185,7 +185,7 @@ const Track: React.FC = () => {
                     </div>
                     <div className="bg-gray-50 border border-gray-100 rounded-3xl p-6">
                       <p className="text-xl font-bold text-[#071a2a]">{delivery?.senderName}</p>
-                      <p className="text-sm text-gray-500 mt-2">{delivery?.senderAddress?.street}, {delivery?.senderAddress?.city}</p>
+                      <p className="text-sm text-gray-700 font-medium mt-2">{delivery?.senderAddress?.street}, {delivery?.senderAddress?.city}</p>
                     </div>
                   </div>
                   
@@ -198,7 +198,7 @@ const Track: React.FC = () => {
                     </div>
                     <div className="bg-gray-50 border border-gray-100 rounded-3xl p-6">
                       <p className="text-xl font-bold text-[#071a2a]">{delivery?.receiverName}</p>
-                      <p className="text-sm text-gray-500 mt-2">{delivery?.receiverAddress?.street}, {delivery?.receiverAddress?.city}</p>
+                      <p className="text-sm text-gray-700 font-medium mt-2">{delivery?.receiverAddress?.street}, {delivery?.receiverAddress?.city}</p>
                     </div>
                   </div>
                 </div>

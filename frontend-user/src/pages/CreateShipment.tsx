@@ -204,7 +204,7 @@ const CreateShipment: React.FC = () => {
                   placeholder="0.0" />
               </div>
               <CustomDatePicker label="Pickup Date" value={formData.pickupDate}
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toLocaleDateString('en-CA')}
                 onChange={(val) => handleChange('pickupDate', '', val)} />
               <div className="md:col-span-2">
                 <label className="block text-[10px] font-black text-gray-400 mb-2 uppercase tracking-[0.2em]">Item Description</label>

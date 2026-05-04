@@ -18,7 +18,7 @@ export const useCreateShipment = () => {
     receiverAddress: { street: '', city: '', state: '', zipCode: '' },
     packageDetails: { weight: 0, description: '' },
     paymentMethod: 'PAY_ON_DELIVERY',
-    pickupDate: new Date().toISOString().split('T')[0]
+    pickupDate: new Date().toLocaleDateString('en-CA')
   });
 
   // Client-side price preview (backend is source of truth)

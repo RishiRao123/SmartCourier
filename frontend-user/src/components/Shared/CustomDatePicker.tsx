@@ -76,7 +76,11 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange, la
         <div
           key={d}
           onClick={() => !isDisabled && handleDateSelect(d)}
-          className={`h-10 w-10 flex items-center justify-center rounded-xl cursor-pointer font-bold text-sm transition-all ${isDisabled ? 'opacity-20 cursor-not-allowed' : 'hover:bg-yellow-500 hover:text-[#071a2a]'} ${isSelected ? 'bg-yellow-500 text-[#071a2a]' : 'text-gray-600'}`}
+          className={`h-10 w-10 flex items-center justify-center rounded-xl font-bold text-sm transition-all 
+            ${isDisabled 
+              ? 'bg-gray-50 text-gray-300 cursor-not-allowed' 
+              : 'cursor-pointer hover:bg-yellow-500 hover:text-[#071a2a] ' + (isSelected ? 'bg-yellow-500 text-[#071a2a]' : 'text-gray-600')
+            }`}
         >
           {d}
         </div>
