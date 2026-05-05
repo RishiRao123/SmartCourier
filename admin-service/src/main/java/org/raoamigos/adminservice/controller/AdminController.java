@@ -27,7 +27,7 @@ public class AdminController {
     private final TrackingClient trackingClient;
     private final AuthClient authClient;
 
-    // ===== Delivery Endpoints =====
+    // Delivery Endpoints 
 
     @GetMapping("/deliveries/{trackingNumber}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -74,7 +74,7 @@ public class AdminController {
         return ResponseEntity.ok(deliveryClient.getDeliveriesByDateRange(start, end));
     }
 
-    // ===== Dashboard Stats =====
+    // Dashboard Stats 
 
     @GetMapping("/dashboard/stats")
     public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats() {
@@ -99,7 +99,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success("Master Dashboard Summary fetched", summary));
     }
 
-    // ===== Tracking Endpoints =====
+    // Tracking Endpoints 
 
     @GetMapping("/dashboard/tracking/{trackingNumber}/history")
     public ResponseEntity<ApiResponse<List<TrackingEventDTO>>> getFullTrackingHistory(@PathVariable String trackingNumber) {
@@ -111,7 +111,7 @@ public class AdminController {
         return ResponseEntity.ok(trackingClient.getRecentSystemEvents(days));
     }
 
-    // ===== User Management Endpoints =====
+    // User Management Endpoints 
 
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers(@RequestHeader("X-User-Role") String role) {

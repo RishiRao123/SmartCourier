@@ -20,7 +20,7 @@ public class RouteValidator {
             "/eureka"
     );
 
-    //
+    
     public Predicate<ServerHttpRequest> isSecured =
             request -> openApiEndpoints
                     .stream()

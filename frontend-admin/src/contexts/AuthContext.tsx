@@ -23,7 +23,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper to decode JWT without a library
 const parseJwt = (token: string): any => {
   try {
     const base64Url = token.split('.')[1];

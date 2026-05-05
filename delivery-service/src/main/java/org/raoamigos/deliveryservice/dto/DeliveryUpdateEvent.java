@@ -1,7 +1,7 @@
 package org.raoamigos.deliveryservice.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+// import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

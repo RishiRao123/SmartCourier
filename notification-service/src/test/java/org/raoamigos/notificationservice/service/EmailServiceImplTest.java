@@ -7,20 +7,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.raoamigos.notificationservice.dto.DeliveryBookedEvent;
-import org.raoamigos.notificationservice.dto.DeliveryDeliveredEvent;
-import org.raoamigos.notificationservice.dto.PasswordResetEvent;
+// import org.raoamigos.notificationservice.dto.DeliveryBookedEvent;
+// import org.raoamigos.notificationservice.dto.DeliveryDeliveredEvent;
+// import org.raoamigos.notificationservice.dto.PasswordResetEvent;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import jakarta.mail.internet.MimeMessage;
+// import jakarta.mail.internet.MimeMessage;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
-/**
- * Phase 5 — EmailServiceImpl Edge Case Tests (Scenarios 6, 7, 8)
- */
 @ExtendWith(MockitoExtension.class)
 class EmailServiceImplTest {
 
