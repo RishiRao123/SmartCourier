@@ -8,9 +8,6 @@ import org.raoamigos.notificationservice.service.EmailService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-/**
- * Listens for delivery booked events and sends booking confirmation emails.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

@@ -4,11 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Event published by delivery-service when a delivery is marked as DELIVERED.
- * Contains info for a delivery confirmation email to the customer.
- * Fields MUST match delivery-service's DeliveryDeliveredEvent exactly.
- */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

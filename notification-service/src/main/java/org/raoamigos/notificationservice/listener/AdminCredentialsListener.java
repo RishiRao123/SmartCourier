@@ -8,9 +8,7 @@ import org.raoamigos.notificationservice.service.EmailService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-/**
- * Listens for admin credential events and sends login credential emails.
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor

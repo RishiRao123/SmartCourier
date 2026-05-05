@@ -14,30 +14,30 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    // ===== Exchange =====
+    // Exchange 
     public static final String NOTIFICATION_EXCHANGE = "notification.exchange";
 
-    // ===== Queues =====
+    //  Queues 
     public static final String OTP_QUEUE = "notification.otp.queue";
     public static final String ADMIN_CREDENTIALS_QUEUE = "notification.admin-credentials.queue";
     public static final String DELIVERY_BOOKED_QUEUE = "notification.delivery-booked.queue";
     public static final String DELIVERY_DELIVERED_QUEUE = "notification.delivery-delivered.queue";
     public static final String PASSWORD_RESET_QUEUE = "notification.password-reset.queue";
 
-    // ===== Routing Keys =====
+    //  Routing Keys 
     public static final String OTP_ROUTING_KEY = "notification.otp";
     public static final String ADMIN_CREDENTIALS_ROUTING_KEY = "notification.admin.credentials";
     public static final String DELIVERY_BOOKED_ROUTING_KEY = "notification.delivery.booked";
     public static final String DELIVERY_DELIVERED_ROUTING_KEY = "notification.delivery.delivered";
     public static final String PASSWORD_RESET_ROUTING_KEY = "notification.password.reset";
 
-    // --- Exchange ---
+    // Exchange 
     @Bean
     public TopicExchange notificationExchange() {
         return new TopicExchange(NOTIFICATION_EXCHANGE, true, false);
     }
 
-    // --- Queues ---
+    // Queues 
     @Bean
     public Queue otpQueue() {
         return QueueBuilder.durable(OTP_QUEUE).build();
@@ -58,7 +58,7 @@ public class RabbitMQConfig {
         return QueueBuilder.durable(DELIVERY_DELIVERED_QUEUE).build();
     }
 
-    // --- Bindings ---
+    // Bindings 
     @Bean
     public Binding otpBinding(Queue otpQueue, TopicExchange notificationExchange) {
         return BindingBuilder.bind(otpQueue).to(notificationExchange).with(OTP_ROUTING_KEY);
@@ -89,7 +89,7 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(passwordResetQueue).to(notificationExchange).with(PASSWORD_RESET_ROUTING_KEY);
     }
 
-    // --- JSON Message Converter ---
+    // JSON Message Converter 
     @Bean
     public MessageConverter jsonMessageConverter() {
         ObjectMapper mapper = new ObjectMapper();

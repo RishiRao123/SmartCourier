@@ -10,10 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementation of EmailService that sends branded HTML emails via Gmail SMTP.
- * All emails use the SmartCourier blue/yellow brand identity.
- */
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,9 +26,8 @@ public class EmailServiceImpl implements EmailService {
 
     private static final String BRAND_NAME = "SmartCourier";
 
-    // =============================================
+
     // 1. OTP VERIFICATION EMAIL
-    // =============================================
     @Override
     public void sendOtpEmail(OtpEmailEvent event) {
         String subject = "Verify Your Email — " + BRAND_NAME;
@@ -53,9 +49,7 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(event.getEmail(), subject, html);
     }
 
-    // =============================================
     // 2. ADMIN CREDENTIALS EMAIL
-    // =============================================
     @Override
     public void sendAdminCredentialsEmail(AdminCredentialsEvent event) {
         String subject = "Your Admin Account — " + BRAND_NAME;
@@ -84,9 +78,7 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(event.getEmail(), subject, html);
     }
 
-    // =============================================
     // 3. DELIVERY BOOKED EMAIL
-    // =============================================
     @Override
     public void sendDeliveryBookedEmail(DeliveryBookedEvent event) {
         if (event == null || event.getCustomerEmail() == null) {
@@ -123,9 +115,7 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(event.getCustomerEmail(), subject, html);
     }
 
-    // =============================================
     // 4. DELIVERY DELIVERED EMAIL
-    // =============================================
     @Override
     public void sendDeliveryDeliveredEmail(DeliveryDeliveredEvent event) {
         if (event == null || event.getCustomerEmail() == null) {
@@ -188,14 +178,11 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(event.getCustomerEmail(), subject, html);
     }
 
-    // =============================================
-    // PRIVATE HELPERS
-    // =============================================
 
-    /**
-     * Builds a table row for the info panels in email templates.
-     */
-    /** Null-safe string helper — returns empty string if value is null */
+    // PRIVATE HELPERS
+
+    // Builds a table row for the info panels in email templates.
+    // Null-safe string helper — returns empty string if value is null */
     private String safeStr(String value) {
         return value != null ? value : "";
     }
@@ -210,10 +197,7 @@ public class EmailServiceImpl implements EmailService {
             + "</tr>";
     }
 
-    /**
-     * Builds the base HTML email wrapper with SmartCourier branding.
-     * All 4 email types share this consistent shell.
-     */
+    
     private String buildBaseTemplate(String headerTitle, String greeting, String bodyContent) {
         return "<!DOCTYPE html>"
             + "<html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head>"
@@ -260,10 +244,7 @@ public class EmailServiceImpl implements EmailService {
             + "</body></html>";
     }
 
-    /**
-     * Sends an HTML email via JavaMailSender.
-     * Logs success or failure for monitoring.
-     */
+
     private void sendHtmlEmail(String to, String subject, String htmlContent) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -281,9 +262,8 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    // =============================================
+
     // 5. PASSWORD RESET EMAIL
-    // =============================================
     @Override
     public void sendPasswordResetEmail(PasswordResetEvent event) {
         if (event == null || event.getEmail() == null) {

@@ -4,10 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Event published by delivery-service when a new delivery is booked.
- * Contains enough info for a booking confirmation email.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -8,9 +8,7 @@ import org.raoamigos.notificationservice.service.EmailService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-/**
- * Listens for password reset events and sends reset code emails.
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor

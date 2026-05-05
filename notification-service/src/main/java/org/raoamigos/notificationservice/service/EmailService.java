@@ -2,9 +2,7 @@ package org.raoamigos.notificationservice.service;
 
 import org.raoamigos.notificationservice.dto.*;
 
-/**
- * Core email service interface for all SmartCourier notification types.
- */
+
 public interface EmailService {
 
     void sendOtpEmail(OtpEmailEvent event);
