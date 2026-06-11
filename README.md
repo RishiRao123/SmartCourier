@@ -1,4 +1,4 @@
-content = """# 🚀 SmartCourier Logistics Ecosystem
+🚀 SmartCourier Logistics Ecosystem
 
 <div align="center">
   <img src="https://img.shields.io/badge/Java_17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 17"/>
@@ -21,8 +21,8 @@ Built as a comprehensive Capgemini Full Stack Case Study, this project demonstra
 
 SmartCourier completely decouples the client presentation layers from the backend services. The backend utilizes **Spring Cloud** for API Gateway routing and service discovery, communicating asynchronously via **RabbitMQ** to prevent blocking operations during high-latency tasks (like SMTP email dispatches).
 
-> **Note:** Insert your High-Level Microservices Architecture diagram here.
-> `![Architecture Diagram](./docs/architecture.png)`
+> Architecture
+>   <img src="" alt="Architecture"/>
 
 ### 🧩 Microservices Landscape
 
