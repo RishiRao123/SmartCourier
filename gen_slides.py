@@ -1,0 +1,311 @@
+import os
+
+brain_dir = r"C:\Users\Rishi Rao\.gemini\antigravity\brain\a8a2558d-5734-468a-b77d-c729d9e86029"
+hld_path = "file:///" + os.path.join(brain_dir, "hld_diagram_1778684794677.png").replace("\\", "/")
+erd_path = "file:///" + os.path.join(brain_dir, "erd_diagram_1778684816216.png").replace("\\", "/")
+jwt_path = "file:///" + os.path.join(brain_dir, "jwt_auth_flow_1778684857997.png").replace("\\", "/")
+rmq_path = "file:///" + os.path.join(brain_dir, "rabbitmq_flow_1778684883615.png").replace("\\", "/")
+
+html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SmartCourier: An Enterprise Microservices Logistics Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {{ --navy: #0a1628; --green: #10b981; --grey: #64748b; --slate: #1e293b; --text: #f8fafc; }}
+  body {{ margin: 0; background: #020617; font-family: 'Lato', sans-serif; color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }}
+  #presentation {{ width: 1280px; height: 720px; position: relative; background: var(--navy); box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow: hidden; border-radius: 8px; }}
+  .slide {{ width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; padding: 50px; box-sizing: border-box; }}
+  .slide.active {{ display: flex; flex-direction: column; }}
+  .slide.active.slide-full-center {{ justify-content: center; align-items: center; text-align: center; }}
+  .slide.active.slide-split {{ flex-direction: row; display: flex; height: 100%; padding: 0; }}
+  .split-left {{ flex: 1; padding: 40px 50px; display: flex; flex-direction: column; justify-content: center; }}
+  .split-right {{ flex: 1; height: 100%; padding: 0; background: var(--slate); display: flex; justify-content: center; align-items: center; overflow: hidden; }}
+  .split-right img {{ width: 100%; height: 100%; object-fit: contain; background: #0a1628; padding: 20px; box-sizing: border-box; }}
+  .slide.active.slide-singular-image {{ display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }}
+  .slide-singular-image img {{ max-width: 90%; max-height: 70%; object-fit: contain; margin-top: 15px; }}
+  
+  /* Adjusted typography for better fit */
+  h1, h2, h3 {{ font-family: 'Poppins', sans-serif; margin: 0; }}
+  h1 {{ font-size: 50px; color: #fff; margin-bottom: 20px; }}
+  h1 .highlight {{ color: var(--green); }}
+  h2 {{ font-size: 34px; color: var(--green); margin-bottom: 20px; border-bottom: 2px solid var(--slate); padding-bottom: 8px; }}
+  h3 {{ font-size: 22px; color: #e2e8f0; margin-bottom: 10px; margin-top: 15px; }}
+  p, li {{ font-size: 18px; line-height: 1.5; color: #cbd5e1; margin-bottom: 12px; }}
+  ul {{ margin-left: 20px; margin-bottom: 15px; }}
+  li {{ margin-bottom: 8px; }}
+  
+  .controls {{ position: absolute; bottom: 15px; right: 20px; z-index: 100; display: flex; gap: 10px; align-items: center; }}
+  .controls button {{ background: var(--green); color: var(--navy); border: none; padding: 8px 16px; font-size: 14px; font-weight: bold; border-radius: 4px; cursor: pointer; font-family: 'Poppins', sans-serif; }}
+  .controls button:hover {{ background: #059669; }}
+  .slide-number {{ font-family: 'Poppins', sans-serif; font-size: 14px; color: var(--grey); }}
+  .footer-logo {{ position: absolute; bottom: 15px; left: 50px; font-family: 'Poppins', sans-serif; font-size: 16px; color: var(--grey); font-weight: 600; z-index: 100; }}
+  .footer-logo span {{ color: var(--green); }}
+  
+  /* Layout specific adjustments */
+  .grid-container {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px; }}
+  .card {{ background: var(--slate); padding: 20px; border-radius: 8px; border-left: 4px solid var(--green); }}
+  .card h3 {{ margin-top: 0; color: #fff; }}
+  .code-block {{ background: #020617; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 15px; color: #10b981; margin: 15px 0; word-break: break-all; }}
+</style>
+</head>
+<body>
+
+<div id="presentation">
+  <!-- Slide 1: Title -->
+  <div class="slide active slide-full-center" id="slide-1">
+    <h1>Smart<span class="highlight">Courier</span></h1>
+    <h3 style="color: var(--grey); font-size: 28px; margin-bottom: 30px;">An Enterprise Microservices Logistics Ecosystem</h3>
+    <p style="font-size: 20px;">Capgemini Technical Viva Presentation</p>
+  </div>
+
+  <!-- Slide 2: Use Case -->
+  <div class="slide" id="slide-2">
+    <h2>Problem vs. Solution</h2>
+    <div class="grid-container">
+      <div class="card" style="border-left-color: #ef4444;">
+        <h3>The Problem: Fragmented Logistics</h3>
+        <ul>
+          <li>Manual tracking updates causing delays</li>
+          <li>Siloed data between delivery and billing</li>
+          <li>Monolithic architectures failing under load</li>
+          <li>Insecure communication and poor observability</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>The Solution: SmartCourier</h3>
+        <ul>
+          <li>Centralized, automated courier tracking</li>
+          <li>Decoupled microservices architecture</li>
+          <li>Real-time event-driven notifications</li>
+          <li>Secure JWT/OTP auth & distributed tracing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: HLD -->
+  <div class="slide slide-split" id="slide-3">
+    <div class="split-left">
+      <h2>High-Level Design (HLD)</h2>
+      <p>A robust, scalable microservices architecture enabling independent deployment and scaling.</p>
+      <ul>
+        <li><strong>API Gateway:</strong> Single entry point, routing, and edge security.</li>
+        <li><strong>Eureka:</strong> Dynamic service discovery and registry.</li>
+        <li><strong>Config Server:</strong> Centralized external configuration management.</li>
+        <li><strong>Independent Services:</strong> Auth, Delivery, Tracking, Admin, and Notification.</li>
+      </ul>
+    </div>
+    <div class="split-right">
+      <img src="{hld_path}" alt="Professional Microservice Architecture Diagram">
+    </div>
+  </div>
+
+  <!-- Slide 4: Backend Stack -->
+  <div class="slide" id="slide-4">
+    <h2>Backend Technology Stack</h2>
+    <div class="grid-container">
+      <div class="card">
+        <h3>Spring Boot 3.x</h3>
+        <p>Provides the foundation for our RESTful APIs, leveraging autoconfiguration and embedded Tomcat for rapid deployment of each microservice.</p>
+      </div>
+      <div class="card">
+        <h3>Spring Data JPA & Hibernate</h3>
+        <p>ORM layer handling complex database interactions, relationships, and schema generation with ease.</p>
+      </div>
+      <div class="card">
+        <h3>MySQL 8.0</h3>
+        <p>Relational databases separated per microservice (Database-per-service pattern) to ensure loose coupling.</p>
+      </div>
+      <div class="card">
+        <h3>Maven & Docker</h3>
+        <p>Robust dependency management and containerization for consistent environments from dev to prod.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Auth Flow -->
+  <div class="slide slide-singular-image" id="slide-5" style="align-items: flex-start;">
+    <h2>Authentication Flow: JWT + OTP</h2>
+    <div style="display: flex; gap: 20px; height: 100%; align-items: center; width: 100%;">
+      <div style="flex: 1;">
+        <ul>
+          <li><strong>Step 1:</strong> User authenticates with credentials.</li>
+          <li><strong>Step 2:</strong> Auth Service generates 6-digit OTP via RabbitMQ to Email.</li>
+          <li><strong>Step 3:</strong> User submits OTP for verification.</li>
+          <li><strong>Step 4:</strong> Secure JWT (RS256) is issued containing role & claims.</li>
+          <li><strong>Step 5:</strong> API Gateway validates JWT on all subsequent requests.</li>
+        </ul>
+      </div>
+      <div style="flex: 1.5; height: 100%; display: flex; justify-content: center; align-items: center;">
+        <img src="{jwt_path}" alt="JWT Auth Flow Diagram" style="max-height: 90%; width: auto;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Asynchronous Logic -->
+  <div class="slide slide-split" id="slide-6">
+    <div class="split-left">
+      <h2>Asynchronous Event-Driven Logic</h2>
+      <p>Decoupling core business logic from auxiliary tasks using RabbitMQ.</p>
+      <ul>
+        <li><strong>Producers:</strong> Delivery Service emits events (Booking, StatusUpdate, Delivered).</li>
+        <li><strong>Message Broker:</strong> RabbitMQ handles routing and guarantees delivery.</li>
+        <li><strong>Consumers:</strong> Notification Service listens and triggers emails.</li>
+        <li><strong>Benefits:</strong> Zero blocking on main delivery flow, high availability, and easy retry mechanisms.</li>
+      </ul>
+    </div>
+    <div class="split-right">
+      <img src="{rmq_path}" alt="Professional RabbitMQ Flow Diagram">
+    </div>
+  </div>
+
+  <!-- Slide 7: Database ERD -->
+  <div class="slide slide-split" id="slide-7">
+    <div class="split-left">
+      <h2>Database Entity Relationships</h2>
+      <p>Enforcing data integrity across distributed databases.</p>
+      <ul>
+        <li><strong>User Entity:</strong> Centralized auth and profile management.</li>
+        <li><strong>Delivery Entity:</strong> Core domain model with embedded Sender/Receiver properties.</li>
+        <li><strong>Invoice Entity:</strong> 1:1 mapping with Delivery for billing.</li>
+        <li><strong>Tracking Event:</strong> Append-only event store linked via unique Tracking Numbers.</li>
+      </ul>
+    </div>
+    <div class="split-right">
+      <img src="{erd_path}" alt="Database ER Diagram">
+    </div>
+  </div>
+
+  <!-- Slide 8: Observability -->
+  <div class="slide" id="slide-8">
+    <h2>Observability & Tracing</h2>
+    <p>Tracking requests across distributed microservices is critical for debugging and SLA monitoring.</p>
+    <div class="grid-container">
+      <div class="card">
+        <h3>Micrometer & Zipkin</h3>
+        <ul>
+          <li><strong>Trace ID:</strong> A unique identifier applied to a request as it enters the API Gateway.</li>
+          <li><strong>Span ID:</strong> Identifies specific work units within individual microservices.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Logging Strategy</h3>
+        <p>Logs are aggregated with context. Example payload:</p>
+        <div class="code-block">
+          [auth-service, TraceId: 8a4b2c, SpanId: 1f9d4e]<br>
+          INFO: Authenticating user 'admin@smartcourier.com'
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Frontend Architecture -->
+  <div class="slide" id="slide-9">
+    <h2>Frontend Architecture: React</h2>
+    <p>A modern, modular approach using a Monorepo structure for Admin and User portals.</p>
+    <div class="grid-container">
+      <div class="card">
+        <h3>Custom Hook Pattern</h3>
+        <p>Abstracting complex state and API logic out of UI components.</p>
+        <ul>
+          <li><code>useDashboard()</code>: Fetches aggregated stats.</li>
+          <li><code>useTracking()</code>: Manages real-time tracking polling.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>UI/UX Strategy</h3>
+        <ul>
+          <li>Vite for lightning-fast HMR and builds.</li>
+          <li>Tailwind CSS for utility-first styling.</li>
+          <li>Context API for global state management (Auth).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Refactoring Impact -->
+  <div class="slide" id="slide-10">
+    <h2>Refactoring Impact: Clean Code</h2>
+    <div class="grid-container">
+      <div class="card" style="border-left-color: #ef4444;">
+        <h3>Before (Bloated Components)</h3>
+        <ul>
+          <li>API calls mixed with UI rendering</li>
+          <li>Duplicate error handling logic</li>
+          <li>Hard to mock during unit testing</li>
+          <li>Massive files (500+ lines)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>After (Separation of Concerns)</h3>
+        <ul>
+          <li>API logic moved to dedicated service files</li>
+          <li>State management delegated to Custom Hooks</li>
+          <li>Components focused strictly on presentation</li>
+          <li>High testability & maintainability</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 11: Future Enhancements -->
+  <div class="slide" id="slide-11">
+    <h2>Future Enhancements for Scalability</h2>
+    <p>Roadmap for evolving SmartCourier into a highly-available, production-grade system.</p>
+    <ul>
+      <li><strong>Redis Caching:</strong> Implement caching for frequently accessed data (e.g., User Profiles, Static Configurations) to reduce DB load.</li>
+      <li><strong>CI/CD Pipelines:</strong> Automate testing and deployment using GitHub Actions or Jenkins.</li>
+      <li><strong>Kubernetes Deployment:</strong> Move from Docker Compose to K8s for auto-scaling, self-healing, and zero-downtime rolling updates.</li>
+      <li><strong>Elasticsearch:</strong> Advanced full-text search capabilities for historical tracking events and admin logs.</li>
+    </ul>
+  </div>
+
+  <!-- Slide 12: Conclusion -->
+  <div class="slide slide-full-center" id="slide-12">
+    <h2>Conclusion & Q&A</h2>
+    <p style="font-size: 24px; max-width: 800px; margin: 0 auto 40px auto; color: var(--green); font-style: italic;">
+      "SmartCourier demonstrates a robust implementation of modern software architecture principles, prioritizing security, decoupling, and maintainability."
+    </p>
+    <div class="card" style="display: inline-block; text-align: left; margin-bottom: 30px;">
+      <h3 style="color: var(--green); margin: 0; font-size: 32px;">Thank You</h3>
+    </div>
+    <p>Open for questions regarding Architecture, Security, or Implementation details.</p>
+  </div>
+
+  <!-- Navigation & Footer -->
+  <div class="footer-logo">Smart<span>Courier</span></div>
+  <div class="controls">
+    <button onclick="changeSlide(-1)">&#8592; Prev</button>
+    <span class="slide-number"><span id="current">1</span> / 12</span>
+    <button onclick="changeSlide(1)">Next &#8594;</button>
+  </div>
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 12;
+
+  function changeSlide(direction) {{
+    document.getElementById(`slide-${{currentSlide}}`).classList.remove('active');
+    currentSlide += direction;
+    if (currentSlide < 1) currentSlide = 1;
+    if (currentSlide > totalSlides) currentSlide = totalSlides;
+    document.getElementById(`slide-${{currentSlide}}`).classList.add('active');
+    document.getElementById('current').innerText = currentSlide;
+  }}
+
+  document.addEventListener('keydown', (e) => {{
+    if (e.key === 'ArrowRight') changeSlide(1);
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+  }});
+</script>
+
+</body>
+</html>"""
+
+with open(r"c:\Users\Rishi Rao\IdeaProjects\SmartCourier\smartcourier_presentation.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("Presentation generated successfully at c:\\Users\\Rishi Rao\\IdeaProjects\\SmartCourier\\smartcourier_presentation.html")
