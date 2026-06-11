@@ -1,8 +1,8 @@
-🚀 SmartCourier Logistics Ecosystem
+# 🚀 SmartCourier Logistics Ecosystem
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Java_17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 17"/>
-  <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" alt="Spring Boot"/>
+  <img src="https://img.shields.io/badge/Java_21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21"/>
+  <img src="https://img.shields.io/badge/Spring_Boot_3.5-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" alt="Spring Boot 3.5"/>
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"/>
   <img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ"/>
   <img src="https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL"/>
@@ -21,8 +21,10 @@ Built as a comprehensive Capgemini Full Stack Case Study, this project demonstra
 
 SmartCourier completely decouples the client presentation layers from the backend services. The backend utilizes **Spring Cloud** for API Gateway routing and service discovery, communicating asynchronously via **RabbitMQ** to prevent blocking operations during high-latency tasks (like SMTP email dispatches).
 
-> Architecture
->   <img src="" alt="Architecture"/>
+> **System Architecture**
+> 
+> ![SmartCourier Microservices Architecture]("C:\Users\Rishi Rao\Pictures\Screenshots\Screenshot 2026-06-04 151406.png")
+> 
 
 ### 🧩 Microservices Landscape
 
@@ -56,7 +58,7 @@ SmartCourier completely decouples the client presentation layers from the backen
 
 ## 🛠 Tech Stack
 
-**Backend:** Java 17, Spring Boot 3, Spring Cloud (Gateway, Eureka, Config), Spring Data JPA, Hibernate, JWT.  
+**Backend:** Java 21, Spring Boot 3.5, Spring Cloud (Gateway, Eureka, Config), Spring Data JPA, Hibernate, JWT.  
 **Frontend:** React 18, TypeScript/JavaScript, Tailwind CSS, Axios, React Router.  
 **Infrastructure & DevOps:** Docker, Docker Compose, RabbitMQ, Zipkin, MySQL, Maven, Git.
 
@@ -65,10 +67,17 @@ SmartCourier completely decouples the client presentation layers from the backen
 ## 🚀 Local Setup & Installation
 
 ### Prerequisites
-* Java 17+
+* Java 21+
 * Node.js 18+
 * Docker Desktop (Required for MySQL, RabbitMQ, and Zipkin)
 * Maven 3.8+
 
 ### 1. Boot the Infrastructure
 We use Docker to spin up the required databases and message brokers instantly.
+
+```bash
+# Navigate to the project root
+cd SmartCourier
+
+# Start MySQL, RabbitMQ, and Zipkin in detached mode
+docker compose up -d
